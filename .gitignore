@@ -1,0 +1,8 @@
+models/
+*.jpg
+*.png
+*.wav
+venv/
+__pycache__/
+*.pyc
+.cache/

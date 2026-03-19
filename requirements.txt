@@ -1,0 +1,35 @@
+# The Witness - Reachy Mini Hackathon Project
+# Install with: pip install -r requirements.txt
+# Note: llama-cpp-python needs special build flags for CUDA (see README)
+
+# Core ML
+torch>=2.0
+torchaudio
+torchvision
+
+# LLM inference (GGUF)
+# Install separately with CUDA:
+# CUDACXX=/usr/local/cuda/bin/nvcc CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python
+llama-cpp-python
+
+# ASR
+faster-whisper
+
+# VLM
+transformers
+accelerate
+
+# TTS
+piper-tts
+
+# Audio I/O
+sounddevice
+
+# Vision
+opencv-python
+
+# Model downloads
+huggingface-hub
+
+# Utilities
+numpy
