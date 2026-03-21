@@ -1,4 +1,4 @@
-# The Witness - Reachy Mini Hackathon Project
+# The Witness / Jarvis - Reachy Mini Hackathon Project
 # Install with: pip install -r requirements.txt
 # Note: llama-cpp-python needs special build flags for CUDA (see README)
 
@@ -11,6 +11,10 @@ torchvision
 # Install separately with CUDA:
 # CUDACXX=/usr/local/cuda/bin/nvcc CMAKE_ARGS="-DGGML_CUDA=on" pip install llama-cpp-python
 llama-cpp-python
+
+# Cloud LLM + ASR
+openai
+requests
 
 # ASR
 faster-whisper
@@ -28,8 +32,21 @@ sounddevice
 # Vision
 opencv-python
 
+# Hand pose estimation (install trt_pose + trt_pose_hand from git, see Dockerfile)
+# torch2trt
+# trt_pose
+# trt_pose_hand
+scikit-learn
+
 # Model downloads
 huggingface-hub
+
+# Agora Conversational AI
+agora-python-server-sdk==2.4.3
+fastapi
+uvicorn[standard]
+httpx
+mcp
 
 # Utilities
 numpy

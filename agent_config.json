@@ -1,0 +1,34 @@
+{
+    "name": "jarvis_witness",
+    "preset": "openai_gpt_4_1_mini,minimax_speech_2_6_turbo",
+    "properties": {
+        "channel": "reachy_conversation",
+        "agent_rtc_uid": "1000",
+        "remote_rtc_uids": ["12345"],
+        "enable_string_uid": false,
+        "idle_timeout": 120,
+        "asr": {
+            "language": "en-US"
+        },
+        "llm": {
+            "system_messages": [
+                {
+                    "role": "system",
+                    "content": "{{config/system_prompt_agora.txt}}"
+                }
+            ],
+            "greeting_message": "Good to see you. Jarvis online. What do you need?"
+        },
+        "tts": {
+            "vendor": "minimax",
+            "params": {
+                "voice_setting": {
+                    "voice_id": "English_Strong-WilledBoy"
+                },
+                "audio_setting": {
+                    "sample_rate": 44100
+                }
+            }
+        }
+    }
+}

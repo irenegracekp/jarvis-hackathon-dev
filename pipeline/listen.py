@@ -1,5 +1,12 @@
-"""Hollyland mic -> Whisper ASR -> transcribed text"""
+"""Hollyland mic -> Whisper ASR -> transcribed text
 
+Supports two backends:
+  - "local" : faster-whisper running locally (default)
+  - "cloud" : OpenAI Whisper API — requires OPENAI_API_KEY env var
+"""
+
+import io
+import os
 import queue
 import threading
 import time
@@ -10,7 +17,7 @@ CAPTURE_RATE = 48000  # Hollyland mic native rate
 CHANNELS = 1
 BLOCK_DURATION = 0.5  # seconds per audio block
 ENERGY_THRESHOLD = 0.01  # RMS threshold for voice activity
-SILENCE_TIMEOUT = 1.5  # seconds of silence before finalizing utterance
+SILENCE_TIMEOUT = 0.8  # seconds of silence before finalizing utterance
 MAX_UTTERANCE_SEC = 15  # max seconds per utterance
 
 
@@ -40,8 +47,9 @@ def _find_hollyland_device():
 
 class ListenPipeline:
     def __init__(self, model_size="base", device="auto", compute_type="auto",
-                 energy_threshold=ENERGY_THRESHOLD):
+                 energy_threshold=ENERGY_THRESHOLD, asr_backend="local"):
         self.model_size = model_size
+        self.asr_backend = asr_backend
         # CTranslate2 pip wheel may lack CUDA on aarch64; auto-detect
         if device == "auto":
             try:
@@ -61,8 +69,27 @@ class ListenPipeline:
         self._running = False
         self._thread = None
         self._model = None
+        self._openai_client = None
 
     def _load_model(self):
+        if self.asr_backend == "cloud":
+            if self._openai_client is None:
+                try:
+                    from openai import OpenAI
+                    api_key = os.environ.get("OPENAI_API_KEY")
+                    if not api_key:
+                        print("[listen] OPENAI_API_KEY not set, falling back to local ASR.")
+                        self.asr_backend = "local"
+                    else:
+                        self._openai_client = OpenAI(api_key=api_key)
+                        print("[listen] Using OpenAI Whisper API for ASR.")
+                        return
+                except ImportError:
+                    print("[listen] openai package not installed, falling back to local ASR.")
+                    self.asr_backend = "local"
+            else:
+                return
+
         if self._model is None:
             from faster_whisper import WhisperModel
             print(f"[listen] Loading faster-whisper '{self.model_size}' on {self.asr_device}...")
@@ -144,6 +171,12 @@ class ListenPipeline:
             print(f"[listen] Audio stream error: {e}")
 
     def _transcribe(self, audio: np.ndarray):
+        if self.asr_backend == "cloud" and self._openai_client is not None:
+            self._transcribe_cloud(audio)
+        else:
+            self._transcribe_local(audio)
+
+    def _transcribe_local(self, audio: np.ndarray):
         try:
             segments, info = self._model.transcribe(
                 audio, beam_size=3, language="en", vad_filter=True
@@ -154,6 +187,33 @@ class ListenPipeline:
                 self.text_queue.put((text, time.time()))
         except Exception as e:
             print(f"[listen] Transcription error: {e}")
+
+    def _transcribe_cloud(self, audio: np.ndarray):
+        try:
+            import wave
+
+            # Convert float32 audio to WAV bytes for the API
+            audio_int16 = (audio * 32767).astype(np.int16)
+            buf = io.BytesIO()
+            with wave.open(buf, "wb") as wf:
+                wf.setnchannels(1)
+                wf.setsampwidth(2)
+                wf.setframerate(WHISPER_RATE)
+                wf.writeframes(audio_int16.tobytes())
+            buf.seek(0)
+            buf.name = "audio.wav"
+
+            response = self._openai_client.audio.transcriptions.create(
+                model="whisper-1",
+                file=buf,
+                language="en",
+            )
+            text = response.text.strip()
+            if text and len(text) > 1:
+                print(f"[listen] Heard (cloud): {text}")
+                self.text_queue.put((text, time.time()))
+        except Exception as e:
+            print(f"[listen] Cloud transcription error: {e}")
 
 
 if __name__ == "__main__":

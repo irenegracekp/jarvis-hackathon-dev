@@ -1,9 +1,11 @@
-"""Camera -> VLM scene description"""
+"""Camera -> VLM scene description + face recognition"""
 
 import cv2
 import numpy as np
 import threading
 import time
+
+from pipeline.faces import FaceRecognizer
 
 # ZED camera is side-by-side stereo — use left half only
 ZED_STEREO = True
@@ -26,6 +28,10 @@ class VisionPipeline:
         self._vlm_processor = None
         self._face_cascade = None
         self._lock = threading.Lock()
+
+        # Face recognition
+        self.face_recognizer = FaceRecognizer()
+        self._previous_faces = {}  # face_id -> bbox from last frame
 
     def open_camera(self):
         if self._cap is None or not self._cap.isOpened():
@@ -153,6 +159,72 @@ class VisionPipeline:
         input_len = inputs["input_ids"].shape[1]
         result = self._vlm_processor.decode(output_ids[0][input_len:], skip_special_tokens=True)
         return result.strip()
+
+    def identify_faces(self, frame):
+        """Detect and identify faces using YuNet + SFace. Returns list of face dicts."""
+        return self.face_recognizer.detect_and_identify(frame)
+
+    @staticmethod
+    def _bbox_iou(a, b):
+        """Intersection-over-union of two [x, y, w, h] bboxes."""
+        ax, ay, aw, ah = a
+        bx, by, bw, bh = b
+        x1 = max(ax, bx)
+        y1 = max(ay, by)
+        x2 = min(ax + aw, bx + bw)
+        y2 = min(ay + ah, by + bh)
+        inter = max(0, x2 - x1) * max(0, y2 - y1)
+        union = aw * ah + bw * bh - inter
+        return inter / union if union > 0 else 0.0
+
+    def get_face_events(self, frame):
+        """Compare current faces vs previous frame. Assigns stable IDs via bbox tracking."""
+        faces = self.identify_faces(frame)
+
+        # Step 1: Known faces already have stable IDs from recognition.
+        # Step 2: Unknown faces (face_id=None) — match to previous frame by bbox overlap,
+        #         or assign a new ID if truly new.
+        used_prev = set()
+        for face in faces:
+            if face["face_id"] is not None:
+                # Known face from recognition — mark as used if it was tracked before
+                used_prev.add(face["face_id"])
+                continue
+
+            # Unknown face — try bbox matching to previous frame
+            best_iou = 0.0
+            best_prev_id = None
+            for prev_id, prev_bbox in self._previous_faces.items():
+                if prev_id in used_prev:
+                    continue
+                iou = self._bbox_iou(face["bbox"], prev_bbox)
+                if iou > best_iou:
+                    best_iou = iou
+                    best_prev_id = prev_id
+
+            if best_iou > 0.15 and best_prev_id is not None:
+                # Same face as previous frame — keep the old ID
+                face["face_id"] = best_prev_id
+                used_prev.add(best_prev_id)
+            else:
+                # Truly new face — assign a fresh ID
+                new_id = self.face_recognizer.next_unknown_id()
+                face["face_id"] = new_id
+
+        current_ids = {f["face_id"] for f in faces}
+        prev_ids = set(self._previous_faces.keys())
+
+        arrivals = [f for f in faces if f["face_id"] not in prev_ids]
+        departures = [fid for fid in prev_ids if fid not in current_ids]
+
+        # Update previous faces
+        self._previous_faces = {f["face_id"]: f["bbox"] for f in faces}
+
+        return {
+            "arrivals": arrivals,
+            "departures": departures,
+            "present": faces,
+        }
 
     def _simple_scene_description(self, frame):
         """Fallback: describe scene using face detection only."""

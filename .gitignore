@@ -1,4 +1,6 @@
 models/
+logs/
+data/
 *.jpg
 *.png
 *.wav
@@ -6,3 +8,6 @@ venv/
 __pycache__/
 *.pyc
 .cache/
+.env
+venv310/
+*.swp

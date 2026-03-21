@@ -62,11 +62,12 @@ class SpeakPipeline:
 
         try:
             # Piper outputs raw WAV to stdout
-            # Pipe: echo text | piper --model voice.onnx --output_raw | aplay -r 22050 -f S16_LE
+            # Use paplay (PulseAudio) for Bluetooth speaker support
+            # Fallback to aplay if paplay not available
             cmd = (
                 f'echo "{self._escape_text(text)}" | '
                 f'piper --model {self.voice_path} --output_raw | '
-                f'aplay -r 22050 -f S16_LE -t raw -c 1 -q'
+                f'paplay --raw --rate=22050 --format=s16le --channels=1'
             )
             result = subprocess.run(
                 cmd, shell=True, capture_output=True, timeout=30
