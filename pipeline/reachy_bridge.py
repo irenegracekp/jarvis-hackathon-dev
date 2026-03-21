@@ -3,11 +3,13 @@
 Handles:
 - Connecting to the robot
 - Head wobble during TTS speech (audio-reactive)
-- Emotion/movement commands from the LLM
+- Playing recorded emotions from the HuggingFace emotion library
+- Head movement commands
 """
 
-import base64
+import json
 import logging
+import os
 import threading
 import time
 
@@ -15,17 +17,8 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-# Emotion name → (antennas_deg, head_pitch_deg, duration)
-EMOTION_MAP = {
-    "excited": ([45, 45], 5, 0.4),
-    "curious": ([20, -20], -10, 0.5),
-    "calm": ([0, 0], 0, 0.8),
-    "surprised": ([50, 50], 10, 0.3),
-    "amused": ([30, 30], 5, 0.4),
-    "skeptical": ([-10, 20], -5, 0.5),
-    "happy": ([40, 40], 5, 0.4),
-    "sad": ([-20, -20], -15, 0.6),
-}
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_EMOTIONS_DIR = os.path.join(_PROJECT_ROOT, "models", "emotions")
 
 
 class ReachyBridge:
@@ -35,9 +28,10 @@ class ReachyBridge:
         self._wobble_thread = None
         self._wobble_running = False
         self._current_level = 0.0
-        self._speaking = False
         self._last_audio_time = 0.0
         self._lock = threading.Lock()
+        self._emotions_cache = {}  # name -> RecordedMove
+        self._playing_emotion = False
 
     @property
     def connected(self):
@@ -52,6 +46,11 @@ class ReachyBridge:
             self._robot.enable_motors()
             self._connected = True
             logger.info("Connected to Reachy Mini (motors enabled)")
+
+            # Preload emotion list
+            if os.path.isdir(_EMOTIONS_DIR):
+                count = len([f for f in os.listdir(_EMOTIONS_DIR) if f.endswith('.json')])
+                logger.info("Emotion library: %d emotions available", count)
 
             # Start wobble thread
             self._wobble_running = True
@@ -84,32 +83,56 @@ class ReachyBridge:
             self._current_level = min(max(float(level), 0.0), 1.0)
             self._last_audio_time = time.time()
 
-    def set_speaking(self, speaking: bool):
-        """Set whether the agent is currently speaking."""
-        with self._lock:
-            self._speaking = speaking
-
-    def play_emotion(self, emotion: str):
-        """Play an emotion on the robot."""
+    def play_emotion(self, emotion_id: str):
+        """Play a recorded emotion on the robot."""
         if not self._connected or not self._robot:
             return
+        if self._playing_emotion:
+            logger.info("Skipping emotion %s (already playing)", emotion_id)
+            return
 
-        emotion = emotion.lower().strip()
-        if emotion in EMOTION_MAP:
-            antennas_deg, pitch_deg, duration = EMOTION_MAP[emotion]
+        emotion_id = emotion_id.lower().strip()
+
+        # Load emotion from cache or file
+        move = self._load_emotion(emotion_id)
+        if move is None:
+            logger.warning("Emotion not found: %s", emotion_id)
+            return
+
+        # Play in background thread so we don't block
+        def _play():
+            self._playing_emotion = True
             try:
-                from reachy_mini.utils import create_head_pose
-                self._robot.goto_target(
-                    head=create_head_pose(pitch=pitch_deg),
-                    antennas=np.deg2rad(antennas_deg),
-                    duration=duration,
-                    method="minjerk",
-                )
-                logger.info("Emotion: %s", emotion)
+                logger.info("Playing emotion: %s (%.1fs)", emotion_id, move.duration)
+                self._robot.play_move(move, sound=False)
+                time.sleep(move.duration + 0.3)
             except Exception as e:
-                logger.error("Emotion error: %s", e)
-        else:
-            logger.warning("Unknown emotion: %s", emotion)
+                logger.error("Emotion play error: %s", e)
+            finally:
+                self._playing_emotion = False
+
+        threading.Thread(target=_play, daemon=True).start()
+
+    def _load_emotion(self, emotion_id):
+        """Load a recorded emotion from the library."""
+        if emotion_id in self._emotions_cache:
+            return self._emotions_cache[emotion_id]
+
+        from reachy_mini.motion.recorded_move import RecordedMove
+
+        path = os.path.join(_EMOTIONS_DIR, f"{emotion_id}.json")
+        if not os.path.exists(path):
+            return None
+
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            move = RecordedMove(data)
+            self._emotions_cache[emotion_id] = move
+            return move
+        except Exception as e:
+            logger.error("Failed to load emotion %s: %s", emotion_id, e)
+            return None
 
     def move_head(self, direction: str):
         """Move head in a direction."""
@@ -117,13 +140,13 @@ class ReachyBridge:
             return
 
         from reachy_mini.utils import create_head_pose
+
         moves = {
             "left": create_head_pose(yaw=20),
             "right": create_head_pose(yaw=-20),
             "up": create_head_pose(pitch=15),
             "down": create_head_pose(pitch=-15),
             "front": create_head_pose(pitch=0, yaw=0),
-            "nod": None,
         }
 
         try:
@@ -160,9 +183,9 @@ class ReachyBridge:
                 level = self._current_level
                 audio_age = time.time() - self._last_audio_time
 
-            # Wobble if we received audio in the last 0.5 seconds
-            if audio_age < 0.5 and level > 0.02 and self._connected and self._robot:
-                pitch = np.sin(time.time() * 6) * level * 25  # ±25 degrees max wobble
+            # Wobble if we received audio in the last 0.5s and not playing an emotion
+            if audio_age < 0.5 and level > 0.02 and self._connected and self._robot and not self._playing_emotion:
+                pitch = np.sin(time.time() * 6) * level * 25
                 try:
                     self._robot.set_target(head=create_head_pose(pitch=pitch))
                     now = time.time()

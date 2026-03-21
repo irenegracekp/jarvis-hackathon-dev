@@ -90,10 +90,20 @@ class AgentManager:
         if user_uid:
             payload["properties"]["remote_rtc_uids"] = [str(user_uid)]
 
-        # Ensure tools are enabled
+        # Ensure tools are enabled + datastream for tool dispatch
         advanced = payload["properties"].get("advanced_features", {})
         advanced["enable_tools"] = True
         payload["properties"]["advanced_features"] = advanced
+
+        # Enable _publish_message tool for robot actions via datastream
+        llm = payload["properties"].get("llm", {})
+        llm["predefined_tools"] = ["_publish_message"]
+        payload["properties"]["llm"] = llm
+
+        # Enable datastream channel for tool messages
+        params = payload["properties"].get("parameters", {})
+        params["data_channel"] = "datastream"
+        payload["properties"]["parameters"] = params
 
         # Add MCP server config if MCP_PUBLIC_URL is set
         mcp_url = os.environ.get("MCP_PUBLIC_URL", "").strip()

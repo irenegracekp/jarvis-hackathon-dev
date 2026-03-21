@@ -145,8 +145,6 @@ def create_app() -> FastAPI:
     @app.post("/api/motion/session")
     def motion_session(payload: dict[str, Any]) -> dict[str, Any]:
         """Session state from browser."""
-        active = payload.get("active", False)
-        _reachy.set_speaking(False)
         return {"ok": True}
 
     @app.post("/api/datastream/message")
@@ -171,16 +169,26 @@ def create_app() -> FastAPI:
         # Conversation state (speaking/listening)
         if obj_type == "message.state":
             state = str(data.get("state", "")).lower()
-            _reachy.set_speaking(state == "speaking")
             logger.info("[datastream] State: %s", state)
 
-        # User speech transcription
+        # User speech transcription or tool action
         elif obj_type == "message.user":
             content = data.get("content", "")
             logger.info("[datastream] User: %s", content)
+            # Check if content is actually a JSON action from the LLM
+            if isinstance(content, str) and "action_type" in content:
+                try:
+                    action = json.loads(content)
+                    if isinstance(action, dict) and action.get("action_type"):
+                        logger.info("[datastream] Action from user msg: %s", json.dumps(action)[:200])
+                        _dispatch_action(action)
+                except (json.JSONDecodeError, ValueError):
+                    pass
 
-        # Tool call / action from LLM
+        # Any other message — log fully and try to extract action
         else:
+            logger.info("[datastream] MSG obj=%s data=%s", obj_type, json.dumps(data)[:300])
+
             # Try to extract action payload (may be nested in content)
             action = data
             content = data.get("content")
