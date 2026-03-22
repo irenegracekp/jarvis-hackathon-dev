@@ -43,6 +43,8 @@ def parse_args():
     parser.add_argument("--no-robot", action="store_true", default=True, help="Skip robot commands (default)")
     parser.add_argument("--no-listen", action="store_true", help="Skip mic input (for testing)")
     parser.add_argument("--no-gestures", action="store_true", help="Skip gesture recognition")
+    parser.add_argument("--3d-viewer", action="store_true", dest="viewer_3d",
+                        help="Launch arch-viewer-full with hand gesture control (swipe/pinch)")
     parser.add_argument("--no-openclaw", action="store_true", help="Skip OpenClaw routing")
     parser.add_argument("--lights-backend", default="none", choices=["none", "hue", "lifx", "govee"],
                         help="Smart light backend: none, hue, lifx, or govee (default: none)")
@@ -215,6 +217,71 @@ def gesture_loop(state, args):
             time.sleep(1)
 
     cap.release()
+
+
+def viewer_3d_loop(state, args):
+    """Launch the 3D arch-viewer with gesture control (WebSocket server + HTTP + browser)."""
+    import subprocess
+    import asyncio as _asyncio
+
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    viewer_dir = os.path.join(project_root, "arch-viewer-full")
+    server_script = os.path.join(project_root, "gesture_ws_server.py")
+
+    if not os.path.isdir(viewer_dir):
+        print("[3d-viewer] arch-viewer-full/ not found. Skipping.")
+        return
+
+    # 1. Start HTTP server for the viewer (port 8090 to avoid clash with dashboard on 8080)
+    http_port = 8090
+    http_proc = subprocess.Popen(
+        ["python3", "-m", "http.server", str(http_port)],
+        cwd=viewer_dir,
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    print(f"[3d-viewer] HTTP server on port {http_port} (PID {http_proc.pid})")
+
+    # 2. Start the gesture WebSocket server
+    ws_proc = subprocess.Popen(
+        ["python3", server_script],
+        cwd=project_root,
+        stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+    )
+    print(f"[3d-viewer] Gesture WS server on port 8765 (PID {ws_proc.pid})")
+
+    # 3. Wait a moment for servers to start, then open browser
+    time.sleep(3)
+    display = os.environ.get("DISPLAY", ":0")
+    try:
+        subprocess.Popen(
+            ["chromium", f"http://localhost:{http_port}"],
+            env={**os.environ, "DISPLAY": display},
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        )
+        print(f"[3d-viewer] Opened Chromium → http://localhost:{http_port}")
+    except FileNotFoundError:
+        print(f"[3d-viewer] Chromium not found. Open http://localhost:{http_port} manually.")
+
+    # 4. Stream gesture server logs while running
+    while state.running:
+        line = ws_proc.stdout.readline()
+        if line:
+            text = line.decode("utf-8", errors="replace").rstrip()
+            if "[GESTURE]" in text or "[WS]" in text or "[ERROR]" in text:
+                print(f"[3d-viewer] {text}")
+        if ws_proc.poll() is not None:
+            print("[3d-viewer] Gesture server exited unexpectedly, restarting...")
+            time.sleep(2)
+            ws_proc = subprocess.Popen(
+                ["python3", server_script],
+                cwd=project_root,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            )
+
+    # Cleanup
+    ws_proc.terminate()
+    http_proc.terminate()
+    print("[3d-viewer] Stopped.")
 
 
 def brain_loop(state, args, dashboard=None):
@@ -791,6 +858,7 @@ def main():
     print(f"  Gestures: {'OFF' if args.no_gestures else 'ON'}")
     print(f"  OpenClaw: {'OFF' if args.no_openclaw else 'ON'}")
     print(f"  Lights: {args.lights_backend}")
+    print(f"  3D Viewer: {'ON' if args.viewer_3d else 'OFF'}")
     if args.agora:
         print(f"  Agora: ON (voice on :8080, MCP on :{args.proxy_port})")
     print(f"  Mode: {'ambient-only' if args.ambient_only else 'engaged-only' if args.engaged_only else 'full'}")
@@ -851,6 +919,12 @@ def main():
         t4 = threading.Thread(target=gesture_loop, args=(state, args), daemon=True, name="gestures")
         t4.start()
         threads.append(t4)
+
+    # 3D Viewer (gesture-controlled arch viewer)
+    if args.viewer_3d:
+        t_viewer = threading.Thread(target=viewer_3d_loop, args=(state, args), daemon=True, name="3d-viewer")
+        t_viewer.start()
+        threads.append(t_viewer)
 
     # Main thread: keyboard input or just wait
     try:

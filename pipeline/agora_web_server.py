@@ -143,7 +143,7 @@ def create_app() -> FastAPI:
             "channel": channel,
             "uid": uid,
             "token": "",
-            "deviceKeywords": ["Wireless", "Hollyland", "Shenzhen", "Reachy", "USB", "Pollen"],
+            "deviceKeywords": ["Reachy", "Pollen", "Wireless", "Hollyland", "Shenzhen", "USB"],
             "speakerKeywords": ["HK Onyx", "Bluetooth", "bluez", "A2DP"],
         }
 

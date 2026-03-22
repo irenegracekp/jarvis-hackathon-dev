@@ -1,0 +1,7 @@
+Metadata-Version: 2.4
+Name: trt_pose
+Version: 0.0.1
+Summary: Pose detection accelerated by NVIDIA TensorRT
+License-File: LICENSE.md
+Dynamic: license-file
+Dynamic: summary

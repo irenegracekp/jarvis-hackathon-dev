@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Arch Viewer</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0d12;--panel:rgba(12,12,18,.97);--surface:rgba(20,20,28,.95);
+  --border:rgba(201,168,76,.14);--gold:#c9a84c;--gold2:rgba(201,168,76,.4);
+  --text:#e8e4dc;--dim:#8a8480;--mute:#4a4440;
+  --sidebar:280px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);
+  font-family:'Segoe UI',system-ui,sans-serif}
+#app{display:flex;height:100vh}
+
+/* ── Sidebar ── */
+#sidebar{width:var(--sidebar);flex-shrink:0;background:var(--panel);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:10}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
+.sb-logo h1{font-size:13px;font-weight:700;letter-spacing:.3px;color:var(--text)}
+.sb-logo p{font-size:10px;color:var(--dim);margin-top:2px}
+.sb-section{padding:10px 10px 6px;font-size:9px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1.2px;color:var(--gold)}
+#sidebar{overflow-y:auto}
+#view-list,#view-list-int{padding:4px 8px;display:flex;flex-direction:column;gap:3px}
+#sidebar::-webkit-scrollbar{width:3px}
+#sidebar::-webkit-scrollbar-thumb{background:var(--border)}
+.vCard{padding:10px 11px;border-radius:6px;border:1px solid transparent;
+  cursor:pointer;transition:all .18s;position:relative}
+.vCard:hover{background:rgba(201,168,76,.05);border-color:rgba(201,168,76,.18)}
+.vCard.on{background:rgba(201,168,76,.08);border-color:var(--gold2)}
+.vCard.on::before{content:'';position:absolute;left:0;top:0;bottom:0;
+  width:3px;background:var(--gold);border-radius:3px 0 0 3px}
+.vCard-row{display:flex;gap:9px;align-items:flex-start}
+.vCard-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.vCard-info{flex:1;min-width:0}
+.vCard-title{font-size:12px;font-weight:600;color:var(--text)}
+.vCard-sub{font-size:10px;color:var(--dim);margin-top:1px}
+.vCard-desc{font-size:10px;color:var(--mute);line-height:1.5;margin-top:6px;display:none}
+.vCard.on .vCard-desc{display:block;color:var(--dim)}
+
+/* ── Saved views ── */
+.sCard{padding:7px 8px;border-radius:6px;border:1px solid transparent;
+  transition:all .18s;position:relative;cursor:pointer}
+.sCard:hover{background:rgba(201,168,76,.05);border-color:rgba(201,168,76,.18)}
+.sCard.on{background:rgba(201,168,76,.08);border-color:var(--gold2)}
+.sCard.on::before{content:'';position:absolute;left:0;top:0;bottom:0;
+  width:3px;background:var(--gold);border-radius:3px 0 0 3px}
+.sCard-top{display:flex;align-items:center;gap:5px}
+.sCard-icon{font-size:14px;flex-shrink:0;color:var(--dim)}
+.sCard-name{flex:1;font-size:12px;font-weight:500;color:var(--text);
+  outline:none;background:none;border:none;border-bottom:1px solid transparent;
+  cursor:pointer;min-width:0;padding:1px 2px;border-radius:3px;
+  font-family:inherit}
+.sCard-name:focus{border-bottom-color:var(--gold);cursor:text;
+  background:rgba(255,255,255,.04);outline:none}
+.sCard-actions{display:flex;gap:3px;flex-shrink:0;opacity:0;transition:opacity .15s}
+.sCard:hover .sCard-actions{opacity:1}
+.sCard.on .sCard-actions{opacity:1}
+.sa-btn{background:var(--surface);border:1px solid var(--border);color:var(--dim);
+  border-radius:4px;cursor:pointer;font-size:10px;padding:2px 6px;
+  transition:all .15s;white-space:nowrap;line-height:1.4}
+.sa-btn:hover{border-color:var(--gold);color:var(--gold)}
+.sa-btn.danger:hover{border-color:#e05555;color:#e05555}
+.sa-btn.update:hover{border-color:#5e9e6a;color:#5e9e6a}
+#no-saved{padding:10px 12px;font-size:10px;color:var(--mute);font-style:italic}
+#save-btn-wrap{padding:6px 8px}
+#btnSave{width:100%;padding:7px;background:rgba(201,168,76,.08);
+  border:1px solid var(--gold2);color:var(--gold);border-radius:6px;
+  cursor:pointer;font-size:11px;font-weight:600;letter-spacing:.3px;
+  transition:all .15s;text-align:center}
+#btnSave:hover{background:rgba(201,168,76,.18)}
+
+.sb-footer{padding:12px;border-top:1px solid var(--border)}
+.sb-nav{display:flex;gap:6px;align-items:center;justify-content:center}
+.nav-btn{flex:1;padding:5px;background:var(--surface);border:1px solid var(--border);
+  color:var(--gold);border-radius:5px;cursor:pointer;font-size:14px;
+  transition:all .15s;text-align:center}
+.nav-btn:hover{border-color:var(--gold);background:rgba(201,168,76,.08)}
+#nav-label{font-size:10px;color:var(--dim);min-width:36px;text-align:center}
+
+/* ── Viewport ── */
+#vp{flex:1;position:relative;overflow:hidden}
+canvas{display:block;width:100%!important;height:100%!important}
+#hud{position:absolute;top:12px;right:12px;display:flex;flex-direction:column;gap:5px}
+.hBtn{padding:5px 10px;background:rgba(12,12,18,.85);border:1px solid var(--border);
+  color:var(--dim);border-radius:5px;cursor:pointer;font-size:11px;
+  transition:all .15s;backdrop-filter:blur(4px)}
+.hBtn:hover{border-color:var(--gold);color:var(--gold)}
+#status-bar{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);
+  background:rgba(12,12,18,.8);border:1px solid var(--border);
+  padding:4px 14px;border-radius:20px;font-size:11px;color:var(--dim);
+  backdrop-filter:blur(4px);white-space:nowrap}
+#loading-overlay{position:absolute;inset:0;background:rgba(0,0,0,.8);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+#loading-overlay.hidden{display:none}
+.spinner{width:36px;height:36px;border:3px solid var(--border);
+  border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#load-text{font-size:14px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- Sidebar -->
+  <aside id="sidebar">
+    <div class="sb-logo">
+      <h1>Architectural Viewer</h1>
+      <p id="model-name">Loading model…</p>
+    </div>
+    <div class="sb-section">Exterior</div>
+    <div id="view-list"></div>
+    <div class="sb-section" style="margin-top:4px">Interior</div>
+    <div id="view-list-int"></div>
+    <div class="sb-section" style="margin-top:4px">Saved Views</div>
+    <div id="save-btn-wrap"><button id="btnSave">📍 Save Current View</button></div>
+    <div id="saved-list"></div>
+    <div class="sb-footer">
+      <div class="sb-nav">
+        <button class="nav-btn" id="btnPrev">‹</button>
+        <span id="nav-label">1 / 6</span>
+        <button class="nav-btn" id="btnNext">›</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Viewport -->
+  <div id="vp">
+    <div id="hud">
+      <button class="hBtn" onclick="document.getElementById('fileIn').click()">📂 Open</button>
+      <input type="file" id="fileIn" accept=".fbx,.glb,.gltf,.obj" hidden/>
+      <div class="hBtn" style="display:flex;align-items:center;gap:6px;padding:4px 8px">
+        <button onclick="applySkyTime((skyIdx+skyTimes.length-1)%skyTimes.length)" style="background:none;border:none;color:inherit;cursor:pointer;font-size:13px;padding:0">‹</button>
+        <span id="skyLabel" style="font-size:11px;min-width:46px;text-align:center">Morning</span>
+        <button onclick="applySkyTime((skyIdx+1)%skyTimes.length)" style="background:none;border:none;color:inherit;cursor:pointer;font-size:13px;padding:0">›</button>
+      </div>
+      <button class="hBtn" id="btnBaked" onclick="setLightingMode(lightingMode==='baked'?'dynamic':'baked')">☀ Dynamic</button>
+      <button class="hBtn" id="btnReset">⟳ Reset View</button>
+      <button class="hBtn" id="btnWire">◻ Wireframe</button>
+    </div>
+    <div id="status-bar">Ready</div>
+    <div id="loading-overlay">
+      <div class="spinner"></div>
+      <div id="load-text">Loading model…</div>
+    </div>
+  </div>
+</div>
+
+<script type="importmap">
+{"imports":{
+  "three": "https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"
+}}</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { FBXLoader }     from 'three/addons/loaders/FBXLoader.js';
+import { GLTFLoader }    from 'three/addons/loaders/GLTFLoader.js';
+import { OBJLoader }     from 'three/addons/loaders/OBJLoader.js';
+import { DRACOLoader }   from 'three/addons/loaders/DRACOLoader.js';
+import { Sky }           from 'three/addons/objects/Sky.js';
+import { RGBELoader }    from 'three/addons/loaders/RGBELoader.js';
+
+// ── Renderer ──────────────────────────────────────────────────────────────
+const vp = document.getElementById('vp');
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+vp.appendChild(renderer.domElement);
+
+// ── Scene ─────────────────────────────────────────────────────────────────
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1c1c28);
+
+// ── Camera ────────────────────────────────────────────────────────────────
+const camera = new THREE.PerspectiveCamera(42, 1, 0.01, 5000);
+camera.position.set(30, 20, 30);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.06;
+
+// ── Lights ────────────────────────────────────────────────────────────────
+const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+scene.add(ambient);
+
+const sun = new THREE.DirectionalLight(0xfff8e8, 2.8);
+sun.position.set(1, 1.5, 0.8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.bias = -0.001;
+scene.add(sun);
+
+const fill = new THREE.DirectionalLight(0xb0c8ff, 0.6);
+fill.position.set(-1, 0.5, -1);
+scene.add(fill);
+
+// ── Sky ───────────────────────────────────────────────────────────────────
+const sky = new Sky();
+sky.scale.setScalar(450000);
+scene.add(sky);
+const skyUni = sky.material.uniforms;
+skyUni.turbidity.value       = 2.5;
+skyUni.rayleigh.value        = 0.8;
+skyUni.mieCoefficient.value  = 0.004;
+skyUni.mieDirectionalG.value = 0.88;
+skyUni.sunPosition.value.set(0.4, 0.18, -1).normalize();
+
+// Sync sun direction light with sky
+sun.position.copy(skyUni.sunPosition.value).multiplyScalar(100);
+
+// Sky time of day slider
+const skyTimes = [
+  { label:'Dawn',    turb:3.0, ray:1.2, sun:[0.1,0.04,1],   col:0xffe4c0, int:1.8 },
+  { label:'Morning', turb:2.0, ray:0.7, sun:[0.5,0.25,-0.8], col:0xfff5e0, int:2.8 },
+  { label:'Noon',    turb:1.5, ray:0.5, sun:[0.3,0.8,0.5],   col:0xffffff, int:3.5 },
+  { label:'Sunset',  turb:4.0, ray:1.8, sun:[1,0.06,-0.4],   col:0xff9060, int:2.2 },
+  { label:'Dusk',    turb:6.0, ray:2.5, sun:[0.8,0.02,0.5],  col:0xff7040, int:1.2 },
+];
+let skyIdx = 1;
+
+function applySkyTime(t) {
+  skyIdx = t;
+  const s = skyTimes[t];
+  skyUni.turbidity.value      = s.turb;
+  skyUni.rayleigh.value       = s.ray;
+  skyUni.sunPosition.value.set(...s.sun).normalize();
+  sun.position.copy(skyUni.sunPosition.value).multiplyScalar(200);
+  sun.color.set(s.col);
+  sun.intensity = s.int;
+  document.getElementById('skyLabel').textContent = s.label;
+}
+applySkyTime(1);
+
+// ── Ground plane — tiled stone/concrete ───────────────────────────────────
+const groundTex = (() => {
+  const c = document.createElement('canvas'); c.width = c.height = 512;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#9a948a'; ctx.fillRect(0,0,512,512);
+  // tile grid
+  ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 2;
+  for (let i = 0; i <= 512; i += 64) {
+    ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,512); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(512,i); ctx.stroke();
+  }
+  // per-tile noise
+  for (let tx = 0; tx < 8; tx++) for (let ty = 0; ty < 8; ty++) {
+    const lum = 140 + Math.floor(Math.random()*30);
+    ctx.fillStyle = `rgba(${lum},${lum-4},${lum-8},0.25)`;
+    ctx.fillRect(tx*64+2, ty*64+2, 60, 60);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(40, 40);
+  return t;
+})();
+
+const ground = new THREE.Mesh(
+  new THREE.PlaneGeometry(2000, 2000),
+  new THREE.MeshStandardMaterial({
+    map: groundTex,
+    roughness: 0.88,
+    metalness: 0.0,
+    color: 0xb8b0a4,
+  })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+scene.add(ground);
+
+// ── Procedural scene elements ─────────────────────────────────────────────
+const proGroup = new THREE.Group();
+scene.add(proGroup);
+
+function procTex(fn, size = 512) {
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  fn(c.getContext('2d'), size);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  return t;
+}
+
+const tLightWood = procTex((ctx, s) => {
+  ctx.fillStyle = '#d6c09a';
+  ctx.fillRect(0, 0, s, s);
+  for (let y = 0; y < s; y += 2 + Math.random() * 5) {
+    const b = 180 + Math.floor(Math.random() * 40);
+    ctx.strokeStyle = `rgba(${b+25},${b-5},${b-45},0.28)`;
+    ctx.lineWidth = 1 + Math.random() * 2.5;
+    ctx.beginPath();
+    ctx.moveTo(0, y + (Math.random()-.5)*3);
+    ctx.bezierCurveTo(s*.3, y+(Math.random()-.5)*5, s*.7, y+(Math.random()-.5)*5, s, y+(Math.random()-.5)*3);
+    ctx.stroke();
+  }
+}); tLightWood.repeat.set(5, 5);
+
+const tBark = procTex((ctx, s) => {
+  ctx.fillStyle = '#4a2e14'; ctx.fillRect(0,0,s,s);
+  const d = ctx.getImageData(0,0,s,s).data;
+  for (let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*55; d[i]=Math.max(0,Math.min(255,d[i]+n)); d[i+1]=Math.max(0,Math.min(255,d[i+1]+n*.6)); d[i+2]=Math.max(0,Math.min(255,d[i+2]+n*.3));}
+  const id=new ImageData(new Uint8ClampedArray(d),s,s); ctx.putImageData(id,0,0);
+}, 256);
+
+const tLeaf = procTex((ctx, s) => {
+  ctx.fillStyle = '#244e14'; ctx.fillRect(0,0,s,s);
+  const id=ctx.getImageData(0,0,s,s); const d=id.data;
+  for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*60; d[i+1]=Math.max(0,Math.min(255,d[i+1]+n)); d[i]=Math.max(0,Math.min(255,d[i]+n*.2));}
+  ctx.putImageData(id,0,0);
+}, 256);
+
+const tFabric = procTex((ctx, s) => {
+  ctx.fillStyle = '#6e7480'; ctx.fillRect(0,0,s,s);
+  const id=ctx.getImageData(0,0,s,s); const d=id.data;
+  for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*22; d[i]=d[i+1]=d[i+2]=Math.max(0,Math.min(255,d[i]+n));}
+  ctx.putImageData(id,0,0);
+}, 256); tFabric.repeat.set(4,4);
+
+const tCushion = procTex((ctx, s) => {
+  ctx.fillStyle = '#c8bda0'; ctx.fillRect(0,0,s,s);
+  const id=ctx.getImageData(0,0,s,s); const d=id.data;
+  for(let i=0;i<d.length;i+=4){const n=(Math.random()-.5)*18; d[i]=Math.max(0,Math.min(255,d[i]+n)); d[i+1]=Math.max(0,Math.min(255,d[i+1]+n)); d[i+2]=Math.max(0,Math.min(255,d[i+2]+n*.8));}
+  ctx.putImageData(id,0,0);
+}, 256); tCushion.repeat.set(2,2);
+
+const M = {
+  lightWood: new THREE.MeshStandardMaterial({ map: tLightWood, roughness: 0.45, metalness: 0 }),
+  darkWood:  new THREE.MeshStandardMaterial({ color: 0x3a2510, roughness: 0.8, metalness: 0 }),
+  bark:      new THREE.MeshStandardMaterial({ map: tBark, roughness: 0.95, metalness: 0 }),
+  leaf:      new THREE.MeshStandardMaterial({ map: tLeaf, roughness: 1.0, metalness: 0 }),
+  fabric:    new THREE.MeshStandardMaterial({ map: tFabric, roughness: 0.9, metalness: 0 }),
+  cushion:   new THREE.MeshStandardMaterial({ map: tCushion, roughness: 0.85, metalness: 0 }),
+  steel:     new THREE.MeshStandardMaterial({ color: 0x888896, roughness: 0.2, metalness: 0.9 }),
+  glass:     new THREE.MeshPhysicalMaterial({ color: 0x88aacc, roughness: 0, metalness: 0, transmission: 0.88, ior: 1.52, transparent: true }),
+  white:     new THREE.MeshStandardMaterial({ color: 0xf0ece4, roughness: 0.85, metalness: 0 }),
+  person:    new THREE.MeshStandardMaterial({ color: 0xdd0099, roughness: 0.7, metalness: 0 }),
+  skin:      new THREE.MeshStandardMaterial({ color: 0xee22bb, roughness: 0.7, metalness: 0 }),
+  grass:     new THREE.MeshStandardMaterial({ color: 0x1e3d10, roughness: 1.0, metalness: 0 }),
+};
+
+function pm(geo, mat, cx, cy, cz) {
+  const m = new THREE.Mesh(geo, mat);
+  m.position.set(cx, cy, cz);
+  m.castShadow = true; m.receiveShadow = true;
+  return m;
+}
+
+// ── Trees — architectural viz styles ─────────────────────────────────────
+// style: 'lollipop' | 'columnar' | 'multi'
+function makeTree(x, y, z, h, style = 'lollipop') {
+  const g = new THREE.Group();
+  if (style === 'lollipop') {
+    // Clean sphere-on-stick — classic arch viz look
+    const tr = h * 0.022;
+    g.add(pm(new THREE.CylinderGeometry(tr, tr*1.4, h*0.52, 6), M.bark, 0, h*0.26, 0));
+    const crown = pm(new THREE.SphereGeometry(h*0.28, 12, 9), M.leaf, 0, h*0.76, 0);
+    crown.scale.set(1, 0.92, 1);
+    g.add(crown);
+  } else if (style === 'columnar') {
+    // Pencil/cypress — tall narrow cone, great as accents
+    const tr = h * 0.05;
+    g.add(pm(new THREE.CylinderGeometry(tr*.2, tr, h, 7), M.leaf, 0, h/2, 0));
+  } else if (style === 'multi') {
+    // Two-tier lollipop — slightly more natural
+    const tr = h * 0.025;
+    g.add(pm(new THREE.CylinderGeometry(tr, tr*1.3, h*0.45, 6), M.bark, 0, h*0.22, 0));
+    const c1 = pm(new THREE.SphereGeometry(h*0.24, 10, 8), M.leaf, 0, h*0.63, 0);
+    const c2 = pm(new THREE.SphereGeometry(h*0.19, 10, 8), M.leaf, h*0.12, h*0.79, h*0.08);
+    c1.scale.set(1, 0.88, 1); c2.scale.set(1, 0.88, 1);
+    g.add(c1, c2);
+  }
+  g.position.set(x, y, z);
+  return g;
+}
+
+// ── Clipped hedge box ─────────────────────────────────────────────────────
+function makeHedge(x, y, z, w, h, d) {
+  const mesh = pm(new THREE.BoxGeometry(w, h, d), M.leaf, 0, h/2, 0);
+  mesh.position.set(x, y, z);
+  return mesh;
+}
+
+// ── Person ────────────────────────────────────────────────────────────────
+function makePerson(x, y, z, h, ry = 0) {
+  const g = new THREE.Group();
+  // head
+  g.add(pm(new THREE.SphereGeometry(h*.1,8,6), M.skin, 0, h*.88, 0));
+  // torso
+  g.add(pm(new THREE.CylinderGeometry(h*.07,h*.09,h*.38,8), M.person, 0, h*.58, 0));
+  // hips
+  g.add(pm(new THREE.CylinderGeometry(h*.08,h*.07,h*.1,8), M.person, 0, h*.36, 0));
+  // legs
+  [-1,1].forEach(s => {
+    g.add(pm(new THREE.CylinderGeometry(h*.035,h*.03,h*.34,6), M.person, s*h*.05, h*.16, 0));
+  });
+  // arms
+  [-1,1].forEach(s => {
+    const arm = pm(new THREE.CylinderGeometry(h*.025,h*.02,h*.3,6), M.person, s*h*.13, h*.56, 0);
+    arm.rotation.z = s * 0.25;
+    g.add(arm);
+  });
+  g.position.set(x, y, z);
+  g.rotation.y = ry;
+  return g;
+}
+
+// ── Sofa ─────────────────────────────────────────────────────────────────
+function makeSofa(x, y, z, u, ry = 0) {
+  const g = new THREE.Group();
+  const w=u*2.4, d=u*1.0, sh=u*0.45;
+  // base
+  g.add(pm(new THREE.BoxGeometry(w,sh,d), M.fabric, 0,sh/2,0));
+  // back
+  g.add(pm(new THREE.BoxGeometry(w,u*.55,u*.2), M.fabric, 0,sh+u*.275,-d/2+u*.1));
+  // armrests
+  [-1,1].forEach(s=>g.add(pm(new THREE.BoxGeometry(u*.2,sh+u*.3,d), M.fabric, s*(w/2+u*.1),(sh+u*.3)/2,0)));
+  // seat cushions
+  for(let i=-1;i<=1;i++) g.add(pm(new THREE.BoxGeometry(u*.72,u*.12,u*.75), M.cushion, i*u*.78,sh+u*.06,-u*.08));
+  // back cushions
+  for(let i=-1;i<=1;i++) g.add(pm(new THREE.BoxGeometry(u*.72,u*.48,u*.12), M.cushion, i*u*.78,sh+u*.24+u*.06,-d/2+u*.2));
+  g.position.set(x, y, z); g.rotation.y = ry;
+  return g;
+}
+
+// ── Coffee table ──────────────────────────────────────────────────────────
+function makeCoffeeTable(x, y, z, u) {
+  const g = new THREE.Group();
+  // glass top
+  g.add(pm(new THREE.BoxGeometry(u*1.4,u*.05,u*.7), M.glass, 0, u*.44, 0));
+  // legs
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([lx,lz])=>
+    g.add(pm(new THREE.CylinderGeometry(u*.025,u*.025,u*.42,6), M.steel, lx*u*.6, u*.21, lz*u*.27)));
+  g.position.set(x,y,z); return g;
+}
+
+// ── Dining set ────────────────────────────────────────────────────────────
+function makeDiningSet(x, y, z, u) {
+  const g = new THREE.Group();
+  const th = u*.85;
+  // table top
+  g.add(pm(new THREE.BoxGeometry(u*2,u*.06,u*1.0), M.darkWood, 0,th,0));
+  // table legs
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([lx,lz])=>
+    g.add(pm(new THREE.CylinderGeometry(u*.04,u*.04,th,6), M.darkWood, lx*u*.85,th/2,lz*u*.4)));
+  // chairs
+  [[-1.3,0,Math.PI/2],[1.3,0,-Math.PI/2],[0,-0.65,0],[0,0.65,Math.PI]].forEach(([cx,cz,ry])=>{
+    const chair = new THREE.Group();
+    // seat
+    chair.add(pm(new THREE.BoxGeometry(u*.5,u*.05,u*.5), M.darkWood, 0,u*.48,0));
+    // back
+    chair.add(pm(new THREE.BoxGeometry(u*.5,u*.48,u*.04), M.darkWood, 0,u*.72,-u*.23));
+    // legs
+    [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([lx,lz])=>
+      chair.add(pm(new THREE.CylinderGeometry(u*.025,u*.025,u*.48,5), M.darkWood, lx*u*.19,u*.24,lz*u*.19)));
+    chair.position.set(cx*u, 0, cz*u); chair.rotation.y = ry;
+    g.add(chair);
+  });
+  g.position.set(x,y,z); return g;
+}
+
+// ── Bed ───────────────────────────────────────────────────────────────────
+function makeBed(x, y, z, u) {
+  const g = new THREE.Group();
+  // frame
+  g.add(pm(new THREE.BoxGeometry(u*1.6,u*.2,u*2.2), M.lightWood, 0,u*.1,0));
+  // headboard
+  g.add(pm(new THREE.BoxGeometry(u*1.6,u*.7,u*.08), M.lightWood, 0,u*.45,-u*1.06));
+  // mattress
+  g.add(pm(new THREE.BoxGeometry(u*1.5,u*.25,u*2.0), M.white, 0,u*.32,0));
+  // duvet
+  g.add(pm(new THREE.BoxGeometry(u*1.48,u*.12,u*1.3), M.cushion, 0,u*.51,u*.25));
+  // pillows
+  [-1,1].forEach(s=>g.add(pm(new THREE.BoxGeometry(u*.6,u*.12,u*.38), M.white, s*u*.43,u*.5,-u*.8)));
+  // legs
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([lx,lz])=>
+    g.add(pm(new THREE.CylinderGeometry(u*.04,u*.04,u*.15,5), M.lightWood, lx*u*.72,u*.075,lz*u*1.02)));
+  g.position.set(x,y,z); return g;
+}
+
+// ── Apply light-wood texture to roof meshes ────────────────────────────────
+function applyModelTextures(obj, box) {
+  const topThreshold = box.min.y + (box.max.y - box.min.y) * 0.82;
+  obj.traverse(c => {
+    if (!c.isMesh) return;
+    const mb = new THREE.Box3().setFromObject(c);
+    const name = (c.name || '').toLowerCase();
+    if (mb.min.y >= topThreshold || name.includes('roof') || name.includes('ceiling') || name.includes('wood')) {
+      c.material = M.lightWood.clone();
+      c.material.map.repeat.set(8, 8);
+    }
+  });
+}
+
+// ── Populate scene with landscaping + furniture + people ───────────────────
+function populateScene(box) {
+  while (proGroup.children.length) proGroup.remove(proGroup.children[0]);
+
+  const c  = box.getCenter(new THREE.Vector3());
+  const s  = box.getSize(new THREE.Vector3());
+  const fy = box.min.y;
+
+  const buildingH = box.max.y - box.min.y;
+  const u  = buildingH / 7.0;    // 1 unit = 1 real metre
+  const fu = u * 0.6;            // furniture/people scale (0.6×)
+  const ph = fu * 1.75;          // person height
+
+  // Wall clearance: keep furniture this far from building edges
+  const pad = s.x * 0.08 + u * 0.6;
+
+  applyModelTextures(currentModel, box);
+
+  // ── Extended lawn ──────────────────────────────────────────────────────
+  const lawnMat = new THREE.MeshStandardMaterial({ color: 0x2a5018, roughness: 1 });
+  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(s.x*4, s.z*4), lawnMat);
+  lawn.rotation.x = -Math.PI/2; lawn.position.set(c.x, fy-0.01, c.z);
+  lawn.receiveShadow = true; proGroup.add(lawn);
+
+  // Paved forecourt in front of building
+  const paveMat = new THREE.MeshStandardMaterial({ color: 0x8a8478, roughness: 0.95 });
+  const pave = new THREE.Mesh(new THREE.PlaneGeometry(s.x*0.7, s.z*0.55), paveMat);
+  pave.rotation.x = -Math.PI/2; pave.position.set(c.x, fy, c.z + s.z*0.78);
+  pave.receiveShadow = true; proGroup.add(pave);
+
+  // ── Designed landscape ────────────────────────────────────────────────
+  const tSmall = u * 3.2, tMed = u * 4.5, tTall = u * 6.5;
+
+  // Flanking lollipop row along front facade (evenly spaced)
+  const frontZ = c.z + s.z * 0.68;
+  const cols = 4;
+  for (let i = 0; i < cols; i++) {
+    const x = c.x - s.x*0.45 + i * (s.x*0.9/(cols-1));
+    proGroup.add(makeTree(x, fy, frontZ, tMed, 'lollipop'));
+  }
+
+  // Columnar accent trees at building corners
+  [[-1,-1],[-1,1],[1,-1],[1,1]].forEach(([dx,dz]) => {
+    proGroup.add(makeTree(c.x + dx*s.x*0.62, fy, c.z + dz*s.z*0.62, tTall, 'columnar'));
+  });
+
+  // Background tree screen (rear + sides)
+  const backPositions = [
+    [-0.9,-0.8],[-0.45,-0.9],[0,-0.95],[0.45,-0.9],[0.9,-0.8],
+    [-1.0,0],[-1.05,0.35],[-1.0,0.7],
+    [1.0,0],[1.05,0.35],[1.0,0.7],
+  ];
+  backPositions.forEach(([dx,dz], i) => {
+    const h = tMed * (0.85 + Math.random()*.4);
+    const style = i % 3 === 0 ? 'multi' : 'lollipop';
+    proGroup.add(makeTree(c.x + dx*s.x*0.85, fy, c.z + dz*s.z*0.85, h, style));
+  });
+
+  // Clipped hedges framing the forecourt
+  const hw = u*0.4, hh = u*0.7;
+  proGroup.add(makeHedge(c.x - s.x*0.4, fy, c.z + s.z*0.55, hw, hh, s.z*0.35));
+  proGroup.add(makeHedge(c.x + s.x*0.4, fy, c.z + s.z*0.55, hw, hh, s.z*0.35));
+  // Low border hedge
+  proGroup.add(makeHedge(c.x, fy, c.z + s.z*1.0, s.x*0.9, hh*0.55, hw));
+
+  // ── Exterior people ───────────────────────────────────────────────────
+  proGroup.add(makePerson(c.x + fu*0.5,  fy, c.z + s.z*.62, ph,  0.4));
+  proGroup.add(makePerson(c.x - fu*0.5,  fy, c.z + s.z*.62, ph, -0.3));
+  proGroup.add(makePerson(c.x + s.x*.32, fy, c.z - s.z*.05, ph,  2.1));
+
+  // ── Ground floor furniture (centered, padded from walls) ───────────────
+  const gf = fy + fu * 0.01;
+  // Sofa: left-centre of building interior
+  const sofaX = c.x - Math.min(s.x*0.18, s.x*0.5 - pad - fu*1.2);
+  const sofaZ = c.z - Math.min(s.z*0.08, s.z*0.5 - pad - fu*0.5);
+  proGroup.add(makeSofa(sofaX, gf, sofaZ, fu, 0));
+  proGroup.add(makeCoffeeTable(sofaX, gf, sofaZ + fu*0.9, fu));
+
+  // Dining: right-centre
+  const dinX = c.x + Math.min(s.x*0.18, s.x*0.5 - pad - fu*1.1);
+  const dinZ = c.z - Math.min(s.z*0.04, s.z*0.5 - pad - fu*0.55);
+  proGroup.add(makeDiningSet(dinX, gf, dinZ, fu));
+
+  // Interior people
+  proGroup.add(makePerson(sofaX - fu*0.3, gf, sofaZ - fu*0.5, ph, 1.2));
+  proGroup.add(makePerson(dinX + fu*0.2,  gf, dinZ,            ph, -0.5));
+
+  // ── Upper floor bedroom ───────────────────────────────────────────────
+  if (buildingH > u * 4.5) {
+    const ff = fy + buildingH * 0.52;
+    const bedX = c.x + Math.min(s.x*0.1, s.x*0.5 - pad - fu*0.9);
+    const bedZ = c.z - Math.min(s.z*0.1, s.z*0.5 - pad - fu*1.2);
+    proGroup.add(makeBed(bedX, ff, bedZ, fu));
+    proGroup.add(makePerson(bedX - fu*0.6, ff, bedZ + fu*0.2, ph, 0.8));
+  }
+}
+
+// ── Camera preset views (computed after model loads) ──────────────────────
+const VIEWS = [
+  // ── Exterior ──
+  { icon:'🏠', title:'Overview',        sub:'Full exterior — SE perspective',  exterior: true,
+    desc:'Full bird\'s-eye view of the complete building and site from the south-east.' },
+  { icon:'🪟', title:'Front Facade',    sub:'Primary entrance elevation',       exterior: true,
+    desc:'Looking directly at the main entrance and front elevation of the building.' },
+  { icon:'🔙', title:'Rear Elevation',  sub:'Back of building',                exterior: true,
+    desc:'View from behind showing the rear elevation, garden and pool side.' },
+  { icon:'◀',  title:'Left Side',       sub:'West/left elevation',              exterior: true,
+    desc:'Side elevation looking at the left face of the building.' },
+  { icon:'▶',  title:'Right Side',      sub:'East/right elevation',             exterior: true,
+    desc:'Side elevation looking at the right face of the building.' },
+  { icon:'🔭', title:'Aerial',          sub:'Top-down plan view',               exterior: true,
+    desc:'Directly overhead plan view showing the roof layout and site.' },
+  // ── Interior ──
+  { icon:'🛋️', title:'Ground Floor',    sub:'Interior — living area',          exterior: false,
+    desc:'Eye-level view inside the ground floor looking toward the rear of the building.' },
+  { icon:'🍽️', title:'Dining / Kitchen',sub:'Interior — central zone',         exterior: false,
+    desc:'Looking across the central open-plan living and dining zone.' },
+  { icon:'🪜', title:'Upper Floor',     sub:'Interior — first floor',           exterior: false,
+    desc:'First floor level looking along the upper storey corridor or landing.' },
+  { icon:'🚪', title:'Entrance Hall',   sub:'Interior — lobby looking in',      exterior: false,
+    desc:'Standing at the entrance threshold looking into the depth of the building.' },
+];
+
+// Exterior: offset applied as fraction of modelSize * 1.15 from modelCenter
+// Interior: pos = [xFrac, yFromFloor, zFrac] × modelSize; tgt same convention
+const camOffsets = [
+  // exterior
+  { pos: [ 1.2,  0.9,  1.2], tgt: [0,   0.2,  0   ] },
+  { pos: [ 0,    0.4,  1.5], tgt: [0,   0.15, 0   ] },
+  { pos: [ 0,    0.4, -1.5], tgt: [0,   0.15, 0   ] },
+  { pos: [-1.5,  0.4,  0  ], tgt: [0,   0.15, 0   ] },
+  { pos: [ 1.5,  0.4,  0  ], tgt: [0,   0.15, 0   ] },
+  { pos: [ 0,    2.2,  0.01],tgt: [0,   0,    0   ] },
+  // interior — pos[1] is fraction of model height from floor (0=floor, 1=roof)
+  { pos: [ 0.05, 0.18,  0.1 ], tgt: [-0.05, 0.18, -0.2] },  // ground floor looking back
+  { pos: [-0.1,  0.18,  0   ], tgt: [ 0.2,  0.18,  0  ] },  // dining looking right
+  { pos: [ 0,    0.55,  0.1 ], tgt: [ 0.1,  0.55, -0.1] },  // upper floor
+  { pos: [ 0,    0.18,  0.35], tgt: [ 0,    0.18,  0  ] },  // entrance looking in
+];
+
+let modelCenter  = new THREE.Vector3();
+let modelSize    = 1;
+let modelBox     = new THREE.Box3();
+
+function getViewWorld(i) {
+  const o    = camOffsets[i];
+  const view = VIEWS[i];
+
+  // Don't compute until model is loaded
+  if (modelBox.isEmpty()) return null;
+
+  // Use user-saved override if set
+  if (!view.exterior) {
+    const ov = loadIntOverrides()[i];
+    if (ov) return {
+      pos: new THREE.Vector3(...ov.pos),
+      tgt: new THREE.Vector3(...ov.tgt),
+    };
+  }
+
+  if (view.exterior) {
+    const d = modelSize * 1.15;
+    return {
+      pos: new THREE.Vector3(modelCenter.x + o.pos[0]*d, modelCenter.y + o.pos[1]*d, modelCenter.z + o.pos[2]*d),
+      tgt: new THREE.Vector3(modelCenter.x + o.tgt[0]*d, modelCenter.y + o.tgt[1]*d, modelCenter.z + o.tgt[2]*d),
+    };
+  } else {
+    // Interior: y measured from floor up
+    const floorY  = modelBox.min.y;
+    const height  = modelBox.max.y - modelBox.min.y;
+    const hx      = modelSize * 0.5;  // half-width scale
+    return {
+      pos: new THREE.Vector3(
+        modelCenter.x + o.pos[0] * hx,
+        floorY + o.pos[1] * height,
+        modelCenter.z + o.pos[2] * hx
+      ),
+      tgt: new THREE.Vector3(
+        modelCenter.x + o.tgt[0] * hx,
+        floorY + o.tgt[1] * height,
+        modelCenter.z + o.tgt[2] * hx
+      ),
+    };
+  }
+}
+
+// ── Sidebar ───────────────────────────────────────────────────────────────
+let curIdx = 0;
+
+const INT_OVERRIDES_KEY = 'arch-viewer-interior-overrides';
+
+function loadIntOverrides() {
+  try { return JSON.parse(localStorage.getItem(INT_OVERRIDES_KEY)) || {}; }
+  catch { return {}; }
+}
+function saveIntOverride(i, pos, tgt) {
+  const ov = loadIntOverrides();
+  ov[i] = { pos, tgt };
+  localStorage.setItem(INT_OVERRIDES_KEY, JSON.stringify(ov));
+}
+function clearIntOverride(i) {
+  const ov = loadIntOverrides();
+  delete ov[i];
+  localStorage.setItem(INT_OVERRIDES_KEY, JSON.stringify(ov));
+}
+
+function buildSidebar() {
+  const extList = document.getElementById('view-list');
+  const intList = document.getElementById('view-list-int');
+  extList.innerHTML = '';
+  intList.innerHTML = '';
+  const overrides = loadIntOverrides();
+
+  VIEWS.forEach((v, i) => {
+    const d = document.createElement('div');
+    d.className = 'vCard' + (i === 0 ? ' on' : '');
+    d.dataset.idx = i;
+
+    const hasOverride = !v.exterior && overrides[i];
+
+    d.innerHTML = `
+      <div class="vCard-row">
+        <span class="vCard-icon">${v.icon}</span>
+        <div class="vCard-info">
+          <div class="vCard-title" style="display:flex;align-items:center;gap:6px">
+            ${v.title}
+            ${!v.exterior ? `<span class="vCard-override-badge" style="font-size:9px;padding:1px 5px;border-radius:3px;background:${hasOverride ? 'rgba(94,158,106,.2)' : 'rgba(201,168,76,.1)'};color:${hasOverride ? '#5e9e6a' : 'var(--mute)'};">${hasOverride ? '● custom' : '○ auto'}</span>` : ''}
+          </div>
+          <div class="vCard-sub">${v.sub}</div>
+          <div class="vCard-desc">${v.desc}${!v.exterior ? `<div style="display:flex;gap:5px;margin-top:7px">
+            <button class="sa-btn update" data-set="${i}" style="font-size:10px">⊕ Set to current view</button>
+            ${hasOverride ? `<button class="sa-btn danger" data-reset="${i}" style="font-size:10px">↺ Reset to auto</button>` : ''}
+          </div>` : ''}</div>
+        </div>
+      </div>`;
+
+    d.addEventListener('click', () => goTo(i));
+
+    // Set button
+    const setBtn = d.querySelector('[data-set]');
+    if (setBtn) setBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      saveIntOverride(i, camera.position.toArray(), controls.target.toArray());
+      setBtn.textContent = '✓ Saved';
+      setTimeout(() => buildSidebar(), 800);
+    });
+
+    // Reset button
+    const resetBtn = d.querySelector('[data-reset]');
+    if (resetBtn) resetBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      clearIntOverride(i);
+      buildSidebar();
+      goTo(i); // re-fly to auto position
+    });
+
+    (v.exterior ? extList : intList).appendChild(d);
+  });
+}
+
+function setActive(i) {
+  curIdx = ((i % VIEWS.length) + VIEWS.length) % VIEWS.length;
+  document.querySelectorAll('.vCard').forEach(c => {
+    c.classList.toggle('on', parseInt(c.dataset.idx) === curIdx);
+  });
+  document.querySelector(`.vCard[data-idx="${curIdx}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  document.getElementById('nav-label').textContent = `${curIdx + 1} / ${VIEWS.length}`;
+}
+
+// ── Camera tween ──────────────────────────────────────────────────────────
+let tweenFrom, tweenTo, tweenT = 1;
+
+function easeInOut(t) { return t < .5 ? 2*t*t : -1 + (4 - 2*t)*t; }
+
+function goTo(i) {
+  i = ((i % VIEWS.length) + VIEWS.length) % VIEWS.length;
+  setActive(i);
+  const w = getViewWorld(i);
+  if (!w) return;  // model not loaded yet
+  tweenFrom = { pos: camera.position.clone(), tgt: controls.target.clone() };
+  tweenTo   = { pos: w.pos, tgt: w.tgt };
+  tweenT    = 0;
+}
+
+document.getElementById('btnPrev').addEventListener('click', () => goTo(curIdx - 1));
+document.getElementById('btnNext').addEventListener('click', () => goTo(curIdx + 1));
+document.getElementById('btnReset').addEventListener('click', () => goTo(0));
+
+window.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') goTo(curIdx + 1);
+  if (e.key === 'ArrowLeft')  goTo(curIdx - 1);
+});
+
+// ── Lighting mode ─────────────────────────────────────────────────────────
+let lightingMode = 'dynamic';
+
+function setLightingMode(mode) {
+  lightingMode = mode;
+  if (mode === 'baked') {
+    ambient.intensity = 1.0;
+    sun.intensity     = 0;
+    fill.intensity    = 0;
+    renderer.toneMapping        = THREE.NoToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    if (currentModel) currentModel.traverse(c => {
+      if (!c.isMesh) return;
+      const mats = Array.isArray(c.material) ? c.material : [c.material];
+      mats.forEach(m => { if (m.envMapIntensity !== undefined) m.envMapIntensity = 0; });
+    });
+  } else {
+    ambient.intensity = 0.7;
+    sun.intensity     = 2.8;
+    fill.intensity    = 0.6;
+    renderer.toneMapping        = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+  }
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  const btn = document.getElementById('btnBaked');
+  if (btn) {
+    btn.textContent = mode === 'baked' ? '💡 Baked' : '☀ Dynamic';
+    btn.style.color = mode === 'baked' ? '#c9a84c' : '';
+    btn.style.borderColor = mode === 'baked' ? 'rgba(201,168,76,.4)' : '';
+  }
+}
+
+// ── Wireframe toggle ──────────────────────────────────────────────────────
+let wire = false;
+let currentModel = null;
+document.getElementById('btnWire').addEventListener('click', function() {
+  wire = !wire;
+  this.textContent = wire ? '◼ Solid' : '◻ Wireframe';
+  if (currentModel) currentModel.traverse(c => {
+    if (c.isMesh) {
+      const mats = Array.isArray(c.material) ? c.material : [c.material];
+      mats.forEach(m => m.wireframe = wire);
+    }
+  });
+});
+
+// ── Model loading ─────────────────────────────────────────────────────────
+const loadingEl = document.getElementById('loading-overlay');
+const loadText  = document.getElementById('load-text');
+const statusBar = document.getElementById('status-bar');
+
+function clearModel() {
+  while (proGroup.children.length) proGroup.remove(proGroup.children[0]);
+  if (!currentModel) return;
+  scene.remove(currentModel);
+  currentModel.traverse(c => {
+    if (c.isMesh) {
+      c.geometry.dispose();
+      (Array.isArray(c.material) ? c.material : [c.material]).forEach(m => m.dispose());
+    }
+  });
+  currentModel = null;
+}
+
+async function loadFile(file) {
+  const ext  = file.name.split('.').pop().toLowerCase();
+  loadingEl.classList.remove('hidden');
+  loadText.textContent = 'Loading…';
+  statusBar.textContent = file.name;
+
+  try {
+    clearModel();
+    const url = URL.createObjectURL(file);
+    let obj;
+
+    if (ext === 'fbx') {
+      obj = await new FBXLoader().loadAsync(url, e => {
+        if (e.lengthComputable)
+          loadText.textContent = `Loading… ${Math.round(e.loaded / e.total * 100)}%`;
+      });
+    } else if (ext === 'glb' || ext === 'gltf') {
+      const draco = new DRACOLoader();
+      draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/');
+      const loader = new GLTFLoader(); loader.setDRACOLoader(draco);
+      const gltf = await loader.loadAsync(url, e => {
+        if (e.lengthComputable)
+          loadText.textContent = `Loading… ${Math.round(e.loaded / e.total * 100)}%`;
+      });
+      obj = gltf.scene;
+    } else if (ext === 'obj') {
+      obj = await new OBJLoader().loadAsync(url);
+    } else {
+      throw new Error('Unsupported: ' + ext);
+    }
+
+    URL.revokeObjectURL(url);
+
+    obj.traverse(c => {
+      if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; }
+    });
+
+    scene.add(obj);
+    currentModel = obj;
+
+    // ── Lighting mode based on whether model has baked textures ────────────
+    const isBaked = file.name.toLowerCase().includes('baked') ||
+                    file.name.toLowerCase().includes('lightmap');
+    setLightingMode(isBaked ? 'baked' : 'dynamic');
+
+    // Compute bounding box → set up cameras & shadows
+    const box    = new THREE.Box3().setFromObject(obj);
+    const size   = box.getSize(new THREE.Vector3());
+    modelSize    = Math.max(size.x, size.y, size.z);
+    modelCenter  = box.getCenter(new THREE.Vector3());
+    modelBox.copy(box);
+
+    // Position ground just below model base to avoid z-fighting
+    ground.position.y = box.min.y - modelSize * 0.002;
+    // Resize ground to ~6× model footprint so sky fills more of the frame
+    ground.geometry.dispose();
+    ground.geometry = new THREE.PlaneGeometry(modelSize * 6, modelSize * 6);
+    const tileCount = Math.max(4, Math.round(modelSize * 6 / 50));
+    groundTex.repeat.set(tileCount, tileCount);
+
+    // Only populate outdoors for exterior models
+    const isInterior = size.y > size.x * 0.6 || size.y > size.z * 0.6;
+    if (!isInterior) { try { populateScene(box); } catch(e) { console.warn('populateScene:', e); } }
+
+    // Fit shadow camera
+    const sd = modelSize * 1.4;
+    sun.shadow.camera.left   = -sd; sun.shadow.camera.right  = sd;
+    sun.shadow.camera.top    =  sd; sun.shadow.camera.bottom = -sd;
+    sun.shadow.camera.far    = sd * 6;
+    sun.position.copy(modelCenter).addScaledVector(new THREE.Vector3(1, 1.5, 0.8).normalize(), sd * 2);
+    fill.position.copy(modelCenter).addScaledVector(new THREE.Vector3(-1, 0.5, -1).normalize(), sd * 2);
+    sun.shadow.camera.updateProjectionMatrix();
+
+    controls.minDistance = modelSize * 0.02;
+    controls.maxDistance = modelSize * 20;
+
+    // Scale camera clipping planes to model — fixes far-view clipping
+    camera.near = modelSize * 0.0005;
+    camera.far  = modelSize * 50;
+    camera.updateProjectionMatrix();
+
+    document.getElementById('model-name').textContent = file.name;
+    statusBar.textContent = file.name;
+
+    // Fly to overview
+    goTo(0);
+
+  } catch (err) {
+    console.error(err);
+    loadText.textContent = 'Error: ' + err.message;
+    statusBar.textContent = 'Error: ' + err.message;
+    setTimeout(() => loadingEl.classList.add('hidden'), 5000);
+    return;
+  }
+
+  loadingEl.classList.add('hidden');
+}
+
+// ── File input & drag-drop ────────────────────────────────────────────────
+document.getElementById('fileIn').addEventListener('change', e => {
+  if (e.target.files[0]) loadFile(e.target.files[0]);
+});
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => {
+  e.preventDefault();
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+
+// ── Saved views (localStorage) ────────────────────────────────────────────
+const STORAGE_KEY = 'arch-viewer-saved-views';
+
+function loadSaved() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function persistSaved(views) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(views));
+}
+
+function renderSavedList() {
+  const saved = loadSaved();
+  const list  = document.getElementById('saved-list');
+  list.innerHTML = '';
+
+  if (saved.length === 0) {
+    list.innerHTML = '<div id="no-saved">Navigate to a spot then click Save.</div>';
+    return;
+  }
+
+  saved.forEach((v, i) => {
+    const card = document.createElement('div');
+    card.className = 'sCard';
+    card.dataset.savedIdx = i;
+
+    // ── Name input ──
+    const name = document.createElement('input');
+    name.className = 'sCard-name';
+    name.value = v.name;
+    name.title = 'Click to rename';
+    name.addEventListener('click', e => e.stopPropagation());
+    name.addEventListener('focus', e => e.stopPropagation());
+    name.addEventListener('blur', () => {
+      const views = loadSaved();
+      if (views[i]) { views[i].name = name.value.trim() || `View ${i + 1}`; persistSaved(views); }
+    });
+    name.addEventListener('keydown', e => { if (e.key === 'Enter') name.blur(); e.stopPropagation(); });
+
+    // ── Action buttons ──
+    const actions = document.createElement('div');
+    actions.className = 'sCard-actions';
+
+    const btnUpdate = document.createElement('button');
+    btnUpdate.className = 'sa-btn update';
+    btnUpdate.textContent = '⊕ Set';
+    btnUpdate.title = 'Override this view with your current camera angle';
+    btnUpdate.addEventListener('click', e => {
+      e.stopPropagation();
+      const views = loadSaved();
+      if (views[i]) {
+        views[i].pos = camera.position.toArray();
+        views[i].tgt = controls.target.toArray();
+        persistSaved(views);
+        btnUpdate.textContent = '✓ Set';
+        setTimeout(() => { btnUpdate.textContent = '⊕ Set'; }, 1000);
+      }
+    });
+
+    const btnDel = document.createElement('button');
+    btnDel.className = 'sa-btn danger';
+    btnDel.textContent = '×';
+    btnDel.title = 'Delete this view';
+    btnDel.addEventListener('click', e => {
+      e.stopPropagation();
+      const views = loadSaved();
+      views.splice(i, 1);
+      persistSaved(views);
+      renderSavedList();
+    });
+
+    actions.appendChild(btnUpdate);
+    actions.appendChild(btnDel);
+
+    const top = document.createElement('div');
+    top.className = 'sCard-top';
+    top.appendChild(name);
+    top.appendChild(actions);
+
+    card.appendChild(top);
+    card.addEventListener('click', () => flyToSaved(i));
+    list.appendChild(card);
+  });
+}
+
+function flyToSaved(i) {
+  const saved = loadSaved();
+  const v = saved[i];
+  if (!v) return;
+
+  // Deactivate preset cards
+  document.querySelectorAll('.vCard').forEach(c => c.classList.remove('on'));
+  // Activate saved card
+  document.querySelectorAll('.sCard').forEach((c, j) => c.classList.toggle('on', j === i));
+  document.getElementById('nav-label').textContent = `S${i + 1}`;
+
+  tweenFrom = { pos: camera.position.clone(), tgt: controls.target.clone() };
+  tweenTo   = {
+    pos: new THREE.Vector3(...v.pos),
+    tgt: new THREE.Vector3(...v.tgt),
+  };
+  tweenT = 0;
+}
+
+document.getElementById('btnSave').addEventListener('click', () => {
+  const views = loadSaved();
+  const name  = `Interior ${views.length + 1}`;
+  views.push({
+    name,
+    pos: camera.position.toArray(),
+    tgt: controls.target.toArray(),
+  });
+  persistSaved(views);
+  renderSavedList();
+  // Flash the button
+  const btn = document.getElementById('btnSave');
+  btn.textContent = '✓ Saved!';
+  setTimeout(() => btn.textContent = '📍 Save Current View', 1200);
+});
+
+renderSavedList();
+
+// ── Auto-load bundled model ───────────────────────────────────────────────
+// Load directly via GLTFLoader URL to avoid doubling memory with blob+File.
+(async function autoLoad() {
+  loadingEl.classList.remove('hidden');
+  loadText.textContent = 'Loading model…';
+  try {
+    const draco = new DRACOLoader();
+    draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/libs/draco/');
+    const loader = new GLTFLoader();
+    loader.setDRACOLoader(draco);
+    const gltf = await loader.loadAsync('model.glb', e => {
+      if (e.lengthComputable)
+        loadText.textContent = `Loading… ${Math.round(e.loaded / e.total * 100)}%`;
+    });
+    const obj = gltf.scene;
+    obj.traverse(c => { if (c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
+    clearModel();
+    scene.add(obj);
+    currentModel = obj;
+
+    const isBaked = true; // bundled model is baked
+    setLightingMode(isBaked ? 'baked' : 'dynamic');
+
+    const box  = new THREE.Box3().setFromObject(obj);
+    const size = box.getSize(new THREE.Vector3());
+    modelSize   = Math.max(size.x, size.y, size.z);
+    modelCenter = box.getCenter(new THREE.Vector3());
+    modelBox.copy(box);
+
+    ground.position.y = box.min.y - modelSize * 0.002;
+    ground.geometry.dispose();
+    ground.geometry = new THREE.PlaneGeometry(modelSize * 6, modelSize * 6);
+    const tileCount = Math.max(4, Math.round(modelSize * 6 / 50));
+    groundTex.repeat.set(tileCount, tileCount);
+
+    const isInterior = size.y > size.x * 0.6 || size.y > size.z * 0.6;
+    if (!isInterior) { try { populateScene(box); } catch(e) { console.warn('populateScene:', e); } }
+
+    const sd = modelSize * 1.4;
+    sun.shadow.camera.left = -sd; sun.shadow.camera.right = sd;
+    sun.shadow.camera.top  =  sd; sun.shadow.camera.bottom = -sd;
+    sun.shadow.camera.far  = sd * 6;
+    sun.position.copy(modelCenter).addScaledVector(new THREE.Vector3(1,1.5,0.8).normalize(), sd*2);
+    fill.position.copy(modelCenter).addScaledVector(new THREE.Vector3(-1,0.5,-1).normalize(), sd*2);
+    sun.shadow.camera.updateProjectionMatrix();
+
+    controls.minDistance = modelSize * 0.02;
+    controls.maxDistance = modelSize * 20;
+    camera.near = modelSize * 0.0005;
+    camera.far  = modelSize * 50;
+    camera.updateProjectionMatrix();
+
+    document.getElementById('model-name').textContent = 'model.glb';
+    statusBar.textContent = 'model.glb';
+    goTo(0);
+  } catch (err) {
+    console.warn('No bundled model:', err);
+    loadText.textContent = 'Error: ' + err.message;
+    setTimeout(() => loadingEl.classList.add('hidden'), 3000);
+    return;
+  }
+  loadingEl.classList.add('hidden');
+})();
+
+// ── Resize ────────────────────────────────────────────────────────────────
+function resize() {
+  const w = vp.clientWidth, h = vp.clientHeight;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', resize);
+resize();
+
+// ── Render loop ───────────────────────────────────────────────────────────
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (tweenT < 1) {
+    tweenT = Math.min(tweenT + 0.018, 1);
+    const e = easeInOut(tweenT);
+    camera.position.lerpVectors(tweenFrom.pos, tweenTo.pos, e);
+    controls.target.lerpVectors(tweenFrom.tgt, tweenTo.tgt, e);
+  }
+
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+buildSidebar();
+animate();
+
+// ── Gesture WebSocket integration ─────────────────────────────────────────────
+// Connects to gesture_ws_server.py (auto-detects host from page URL).
+// SWIPE_LEFT/RIGHT → cycle camera views; PINCH → zoom in/out.
+(function gestureWS() {
+  // Use the same host the page was served from (works when Jetson serves both).
+  // Falls back to localhost for file:// or other edge cases.
+  const wsHost = (location.hostname && location.hostname !== '') ? location.hostname : 'localhost';
+  const WS_URL = `ws://${wsHost}:8765`;
+
+  // ── Gesture HUD badge (sits above the status bar) ──
+  const gestureHud = document.createElement('div');
+  gestureHud.id = 'gesture-hud';
+  Object.assign(gestureHud.style, {
+    position: 'absolute', bottom: '48px', left: '50%',
+    transform: 'translateX(-50%)',
+    background: 'rgba(12,12,18,.88)', border: '1px solid rgba(201,168,76,.4)',
+    padding: '5px 18px', borderRadius: '20px', fontSize: '13px',
+    color: '#c9a84c', backdropFilter: 'blur(4px)',
+    transition: 'opacity .35s', opacity: '0', pointerEvents: 'none',
+    whiteSpace: 'nowrap', fontWeight: '600', zIndex: '20',
+  });
+  document.getElementById('vp').appendChild(gestureHud);
+
+  // ── Connection indicator dot in the status bar ──
+  const dot = document.createElement('span');
+  dot.title = 'Gesture server: not connected';
+  Object.assign(dot.style, {
+    display: 'inline-block', width: '7px', height: '7px',
+    borderRadius: '50%', background: '#555', marginLeft: '8px',
+    verticalAlign: 'middle',
+  });
+  document.getElementById('status-bar').appendChild(dot);
+
+  let hideTimer = null;
+  function showGesture(label) {
+    gestureHud.textContent = label;
+    gestureHud.style.opacity = '1';
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(() => { gestureHud.style.opacity = '0'; }, 1600);
+  }
+
+  // ── Dolly camera along orbit axis (cooperates with OrbitControls) ──
+  function dolly(factor) {
+    const dir     = new THREE.Vector3().subVectors(camera.position, controls.target);
+    const dist    = dir.length();
+    const minDist = controls.minDistance > 0 ? controls.minDistance : 0.1;
+    const maxDist = isFinite(controls.maxDistance) ? controls.maxDistance : 1e6;
+    const newDist = Math.max(minDist, Math.min(maxDist, dist * factor));
+    camera.position.copy(controls.target).addScaledVector(dir.normalize(), newDist);
+  }
+
+  // Exponential moving average to smooth noisy pinch deltas
+  let smoothedDelta = 0;
+  const PINCH_SMOOTH = 0.35;   // 0 = ignore new data, 1 = no smoothing
+  const PINCH_GAIN   = 3.0;    // how aggressively zoom responds
+
+  function onGesture(msg) {
+    let data;
+    try { data = JSON.parse(msg); } catch { console.warn('[Gesture] bad JSON:', msg); return; }
+    console.log('[Gesture] received:', data);
+
+    switch (data.gesture) {
+      case 'SWIPE_LEFT':
+        console.log('[Gesture] → goTo(', curIdx - 1, ')');
+        goTo(curIdx - 1);
+        showGesture('◀  Previous view');
+        break;
+      case 'SWIPE_RIGHT':
+        console.log('[Gesture] → goTo(', curIdx + 1, ')');
+        goTo(curIdx + 1);
+        showGesture('▶  Next view');
+        break;
+      case 'PINCH': {
+        // Smooth the raw delta to filter hand tremor
+        smoothedDelta = smoothedDelta * (1 - PINCH_SMOOTH) + data.delta * PINCH_SMOOTH;
+        const factor = 1 - smoothedDelta * PINCH_GAIN;
+        console.log('[Gesture] PINCH raw=', data.delta, 'smoothed=', smoothedDelta.toFixed(4), 'dolly=', factor.toFixed(4));
+        dolly(factor);
+        showGesture(smoothedDelta > 0 ? '+ Zoom in' : '- Zoom out');
+        break;
+      }
+      default:
+        console.log('[Gesture] unknown gesture:', data.gesture);
+    }
+  }
+
+  // ── WebSocket with auto-reconnect ──
+  let ws = null;
+  let reconnectId = 0;
+
+  function connect() {
+    if (ws) { ws.onclose = null; ws.onerror = null; ws.close(); }
+    ws = new WebSocket(WS_URL);
+
+    ws.onopen = () => {
+      console.log('[Gesture] WebSocket connected to', WS_URL);
+      dot.style.background = '#4c9';
+      dot.title = `Gesture server: connected (${WS_URL})`;
+      smoothedDelta = 0;     // reset zoom accumulator on reconnect
+    };
+    ws.onmessage = e => onGesture(e.data);
+    ws.onclose = (ev) => {
+      console.log('[Gesture] WebSocket closed, code:', ev.code, 'reason:', ev.reason);
+      dot.style.background = '#555';
+      dot.title = 'Gesture server: disconnected — retrying…';
+      reconnectId = setTimeout(connect, 3000);
+    };
+    ws.onerror = () => ws.close();   // triggers onclose → reconnect
+  }
+
+  connect();
+})();
+</script>
+</body>
+</html>
