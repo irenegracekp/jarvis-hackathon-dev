@@ -49,8 +49,10 @@ uvicorn[standard]
 httpx
 mcp
 
-# Philips Hue
-phue
+# Smart Lights (choose your backend)
+phue              # Philips Hue (bridge required)
+lifxlan           # LIFX (WiFi direct, no hub)
+# govee-api-laggat  # Govee (cloud API) - uncomment if using Govee
 
 # Utilities
 numpy
