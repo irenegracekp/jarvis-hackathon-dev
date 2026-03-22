@@ -49,6 +49,9 @@ uvicorn[standard]
 httpx
 mcp
 
+# Philips Hue
+phue
+
 # Utilities
 numpy
 sounddevice
