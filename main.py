@@ -44,7 +44,8 @@ def parse_args():
     parser.add_argument("--no-listen", action="store_true", help="Skip mic input (for testing)")
     parser.add_argument("--no-gestures", action="store_true", help="Skip gesture recognition")
     parser.add_argument("--no-openclaw", action="store_true", help="Skip OpenClaw routing")
-    parser.add_argument("--no-hue", action="store_true", help="Skip Philips Hue light integration")
+    parser.add_argument("--lights-backend", default="none", choices=["none", "hue", "lifx", "govee"],
+                        help="Smart light backend: none, hue, lifx, or govee (default: none)")
     parser.add_argument("--agora", action="store_true", help="Use Agora Conversational AI (cloud ASR+LLM+TTS)")
     parser.add_argument("--agora-channel", default=None, help="Agora channel name (default: from AGORA_CHANNEL env)")
     parser.add_argument("--proxy-port", type=int, default=8001, help="MCP tool server port (default: 8001)")
@@ -302,8 +303,7 @@ def brain_loop(state, args, dashboard=None):
             state.mode = "ambient"
             brain.clear_conversation(face_id)
             state.current_face_id = None
-            if hasattr(state, 'hue'):
-                state.hue.set_state("ambient")
+            state.lights.set_state("ambient")
             if dashboard:
                 dashboard.state.update_state(mode="ambient", current_face=None)
             return
@@ -330,8 +330,7 @@ def brain_loop(state, args, dashboard=None):
         state.mode = "engaged"
         state.last_speech_time = ts
         print(f"[main] ENGAGED: '{text}'")
-        if hasattr(state, 'hue'):
-            state.hue.set_state("engaged")
+        state.lights.set_state("engaged")
         if dashboard:
             dashboard.state.update_state(mode="engaged", last_speech=text)
             _dash_event("speech", f"Heard: \"{text}\"")
@@ -426,8 +425,7 @@ def brain_loop(state, args, dashboard=None):
                     state.mode = "ambient"
                     brain.clear_conversation(state.current_face_id)
                     state.current_face_id = None
-                    if hasattr(state, 'hue'):
-                        state.hue.set_state("ambient")
+                    state.lights.set_state("ambient")
                     if dashboard:
                         dashboard.state.update_state(mode="ambient", current_face=None)
                         _dash_event("system", "Speaker left -> ambient mode")
@@ -436,8 +434,7 @@ def brain_loop(state, args, dashboard=None):
                     state.mode = "ambient"
                     brain.clear_all_conversations()
                     state.current_face_id = None
-                    if hasattr(state, 'hue'):
-                        state.hue.set_state("ambient")
+                    state.lights.set_state("ambient")
                     if dashboard:
                         dashboard.state.update_state(mode="ambient", current_face=None)
                         _dash_event("system", "Silence timeout -> ambient mode")
@@ -463,8 +460,7 @@ def brain_loop(state, args, dashboard=None):
                         # Transition idle -> ambient when faces appear
                         if events["present"] and state.mode == "idle":
                             state.mode = "ambient"
-                            if hasattr(state, 'hue'):
-                                state.hue.set_state("ambient")
+                            state.lights.set_state("ambient")
                             if dashboard:
                                 dashboard.state.update_state(mode="ambient")
                                 _dash_event("system", "Faces detected -> ambient mode")
@@ -476,8 +472,7 @@ def brain_loop(state, args, dashboard=None):
                                           for fid in vision._previous_faces)
                             if all_gone and not vision._previous_faces:
                                 state.mode = "idle"
-                                if hasattr(state, 'hue'):
-                                    state.hue.set_state("idle")
+                                state.lights.set_state("idle")
                                 if dashboard:
                                     dashboard.state.update_state(mode="idle")
 
@@ -516,8 +511,7 @@ def brain_loop(state, args, dashboard=None):
 
                                 state.response_queue.put(response)
                                 state.record_greet(fid)
-                                if hasattr(state, 'hue'):
-                                    state.hue.flash(response.get("emotion", "excited"))
+                                state.lights.flash(response.get("emotion", "excited"))
                                 del arrival_confirmations[fid]
 
                         # Log departures (only if buffered)
@@ -557,7 +551,7 @@ def brain_loop(state, args, dashboard=None):
 
 
 def output_loop(state, args):
-    """Thread 3: Response -> TTS + Robot actions + Hue lights"""
+    """Thread 3: Response -> TTS + Robot actions + Lights"""
     if args.no_tts:
         from pipeline.speak import DummySpeakPipeline
         speaker = DummySpeakPipeline()
@@ -568,14 +562,10 @@ def output_loop(state, args):
     from pipeline.robot import RobotController
     robot = RobotController(real_robot=not args.no_robot)
 
-    # Hue light integration
-    if args.no_hue:
-        from pipeline.hue import DummyHueBridge
-        hue = DummyHueBridge()
-    else:
-        from pipeline.hue import HueBridge
-        hue = HueBridge()
-    state.hue = hue  # Expose to brain_loop for state transitions
+    # Smart light integration (hue / lifx / govee / none)
+    from pipeline.lights import create_light_backend
+    lights = create_light_backend(args.lights_backend)
+    state.lights = lights  # Expose to brain_loop for state transitions
 
     speaker.start()
     print("[main] Output loop running.")
@@ -585,10 +575,10 @@ def output_loop(state, args):
             response = state.response_queue.get(timeout=1)
             robot.execute_response(response)
 
-            # Update Hue lights with emotion
+            # Update lights with emotion
             emotion = response.get("emotion", "")
             if emotion:
-                hue.set_emotion(emotion)
+                lights.set_emotion(emotion)
 
             speech = response.get("speech", "")
             if speech:
@@ -604,7 +594,7 @@ def output_loop(state, args):
             state.tts_speaking = False
             print(f"[main] Output error: {e}")
 
-    hue.off()
+    lights.off()
     speaker.stop()
 
 
@@ -800,7 +790,7 @@ def main():
     print(f"  Listen: {'AGORA' if args.agora else 'OFF' if args.no_listen else 'ON'}")
     print(f"  Gestures: {'OFF' if args.no_gestures else 'ON'}")
     print(f"  OpenClaw: {'OFF' if args.no_openclaw else 'ON'}")
-    print(f"  Hue: {'OFF' if args.no_hue else 'ON'}")
+    print(f"  Lights: {args.lights_backend}")
     if args.agora:
         print(f"  Agora: ON (voice on :8080, MCP on :{args.proxy_port})")
     print(f"  Mode: {'ambient-only' if args.ambient_only else 'engaged-only' if args.engaged_only else 'full'}")
