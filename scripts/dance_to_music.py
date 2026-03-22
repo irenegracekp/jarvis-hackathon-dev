@@ -1,11 +1,11 @@
 """Dance to music using Live Audio Processing and Reachy Mini.
 
-Listens for 5 seconds to calculate the exact tempo of the music. 
+Listens for 5 seconds to calculate the exact tempo of the music.
 Drives a strict 4-beat sequence:
-  Beat 1: Translate head left (eyes level, facing forward)
-  Beat 2: Bop (tilt head + snap antennas)
-  Beat 3: Translate head right (eyes level, facing forward)
-  Beat 4: Bop (tilt head + snap antennas)
+  Beat 1: Translate head left (x=-0.09, y=0)
+  Beat 2: Antennas snap to -1/+1 rad then back to 0; head stays left
+  Beat 3: Translate head right (x=0.09, y=0)
+  Beat 4: Antennas snap to -1/+1 rad then back to 0; head stays right
 
 Usage:
   python dance_to_music.py                # dance with robot
@@ -22,9 +22,9 @@ import sounddevice as sd
 # Constants
 # ---------------------------------------------------------------------------
 MOTION_HZ = 30
-SWAY_MAX = 20.0             # degrees to translate left/right
-BOP_TILT = 15.0             # degrees to tilt the head on the bop
-ANTENNA_MAX = 45.0          # degrees to snap antennas out
+HEAD_X_OFFSET = 0.09        # meters to translate head left/right
+ANTENNA_SNAP = 1.0          # radians to snap antennas out
+ANTENNA_SNAP_PHASE = 0.3    # fraction of beat to hold antennas out before snapping back
 
 # Live Audio Settings
 SAMPLE_RATE = 44100
@@ -69,10 +69,9 @@ def motion_loop(mini, state):
         from reachy_mini.utils import create_head_pose
 
     # Current smoothed positions
-    curr_body_yaw = 0.0
-    curr_head_yaw = 0.0
-    curr_roll = 0.0
-    curr_antennas = 0.0
+    curr_head_y = 0.0
+    curr_left_antenna = 0.0
+    curr_right_antenna = 0.0
 
     while state.running:
         now = time.time()
@@ -83,70 +82,64 @@ def motion_loop(mini, state):
             period = max(state.beat_period, 0.25)
             dance_start = state.dance_start_time
 
-        target_body_yaw = 0.0
-        target_head_yaw = 0.0
-        target_roll = 0.0
-        target_antennas = 0.0
+        target_head_y = 0.0
+        target_left_antenna = 0.0
+        target_right_antenna = 0.0
 
         if mode == "dancing":
             elapsed = now - dance_start
             beat_index = int(elapsed / period)
-            phase = (elapsed % period) / period  # Goes from 0.0 to 1.0 over exactly 1 beat
-            
-            # Ease-in-out curve for smooth side-to-side transitions
-            ease = phase * phase * (3 - 2 * phase)
-            
-            # Sine wave for a smooth tilt and snap taking exactly 1 beat
-            bop_envelope = np.sin(phase * np.pi) 
+            phase = (elapsed % period) / period  # 0.0 to 1.0 over one beat
 
             # 4-Beat State Machine
             cycle = beat_index % 4
-            
-            if cycle == 0:
-                # Beat 1: Move from Right to Left
-                # We swing the body left, and counter-rotate the head right to keep eyes level and facing forward
-                target_body_yaw = -SWAY_MAX + (SWAY_MAX * 2) * ease
-                target_head_yaw = -target_body_yaw
-                target_roll = 0.0
-                target_antennas = 0.0
-                
-            elif cycle == 1:
-                # Beat 2: Hold Left, Bop (Tilt + Snap Antennas)
-                target_body_yaw = SWAY_MAX
-                target_head_yaw = -SWAY_MAX
-                target_roll = BOP_TILT * bop_envelope  # Tilt head
-                target_antennas = ANTENNA_MAX * bop_envelope # Snap antennas
-                
-            elif cycle == 2:
-                # Beat 3: Move from Left to Right
-                target_body_yaw = SWAY_MAX - (SWAY_MAX * 2) * ease
-                target_head_yaw = -target_body_yaw
-                target_roll = 0.0
-                target_antennas = 0.0
-                
-            elif cycle == 3:
-                # Beat 4: Hold Right, Bop (Tilt + Snap Antennas)
-                target_body_yaw = -SWAY_MAX
-                target_head_yaw = SWAY_MAX
-                target_roll = -BOP_TILT * bop_envelope # Tilt head the other way
-                target_antennas = ANTENNA_MAX * bop_envelope # Snap antennas
 
-        # Light smoothing to prevent violent jerks
-        curr_body_yaw += (target_body_yaw - curr_body_yaw) * 0.4
-        curr_head_yaw += (target_head_yaw - curr_head_yaw) * 0.4
-        curr_roll += (target_roll - curr_roll) * 0.4
-        curr_antennas += (target_antennas - curr_antennas) * 0.5
+            if cycle == 0:
+                # Beat 1: Head moves left
+                target_head_y = -HEAD_X_OFFSET
+                target_left_antenna = 0.0
+                target_right_antenna = 0.0
+
+            elif cycle == 1:
+                # Beat 2: Head stays left; antennas snap out then immediately back
+                target_head_y = -HEAD_X_OFFSET
+                if phase < ANTENNA_SNAP_PHASE:
+                    target_left_antenna = -ANTENNA_SNAP
+                    target_right_antenna = ANTENNA_SNAP
+                else:
+                    target_left_antenna = 0.0
+                    target_right_antenna = 0.0
+
+            elif cycle == 2:
+                # Beat 3: Head moves right
+                target_head_y = HEAD_X_OFFSET
+                target_left_antenna = 0.0
+                target_right_antenna = 0.0
+
+            elif cycle == 3:
+                # Beat 4: Head stays right; antennas snap out then immediately back
+                target_head_y = HEAD_X_OFFSET
+                if phase < ANTENNA_SNAP_PHASE:
+                    target_left_antenna = -ANTENNA_SNAP
+                    target_right_antenna = ANTENNA_SNAP
+                else:
+                    target_left_antenna = 0.0
+                    target_right_antenna = 0.0
+
+        # Smooth head x transition; antennas snap fast
+        curr_head_y += (target_head_y - curr_head_y) * 0.4
+        curr_left_antenna += (target_left_antenna - curr_left_antenna) * 0.8
+        curr_right_antenna += (target_right_antenna - curr_right_antenna) * 0.8
 
         # Send to robot
         if mini is not None:
             try:
                 mini.set_target(
-                    head=create_head_pose(pitch=0.0, roll=curr_roll, yaw=curr_head_yaw)
+                    head=create_head_pose(pitch=0.0, roll=0.0, yaw=0.0, x=0.0, y=curr_head_y)
                 )
-                mini.set_target(body_yaw=np.deg2rad(curr_body_yaw))
-                mini.set_target(antennas=np.deg2rad([curr_antennas, curr_antennas]))
+                mini.set_target(antennas=[curr_left_antenna, curr_right_antenna])
             except Exception:
-                pass 
+                pass
 
         time.sleep(1.0 / MOTION_HZ)
 
@@ -286,9 +279,8 @@ def main():
         if mini is not None:
             from reachy_mini.utils import create_head_pose
             print("[dance] Returning to neutral...")
-            mini.goto_target(head=create_head_pose(pitch=0, roll=0, yaw=0), duration=1.0)
-            mini.goto_target(body_yaw=0.0, duration=1.0)
-            mini.goto_target(antennas=np.deg2rad([0, 0]), duration=1.0)
+            mini.goto_target(head=create_head_pose(pitch=0, roll=0, yaw=0, x=0.0, y=0.0), duration=1.0)
+            mini.goto_target(antennas=[0.0, 0.0], duration=1.0)
             time.sleep(1.1)
             mini.__exit__(None, None, None)
             print("[dance] Disconnected.")
