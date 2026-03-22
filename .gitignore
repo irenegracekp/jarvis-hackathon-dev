@@ -12,3 +12,4 @@ __pycache__/
 .env
 venv310/
 *.swp
+reachy-venv

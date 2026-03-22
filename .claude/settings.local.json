@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(find /home/alex/Desktop/jarvis-hackathon-dev/reachy-venv -name *.py -path */reachy_mini/*)",
+      "Bash(find /home/alex/Desktop/jarvis-hackathon-dev/reachy-venv/lib -name *.py -path *reachy*)",
+      "Bash(grep -r BeatNet /home/alex/Desktop/jarvis-hackathon-dev --include=*.py --include=*.txt --include=*.md)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:archives.ismir.net)"
     ]
   }
 }

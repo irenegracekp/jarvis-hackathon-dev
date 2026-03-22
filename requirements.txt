@@ -37,6 +37,7 @@ opencv-python
 # trt_pose
 # trt_pose_hand
 scikit-learn
+scipy
 
 # Model downloads
 huggingface-hub
@@ -50,3 +51,4 @@ mcp
 
 # Utilities
 numpy
+sounddevice
