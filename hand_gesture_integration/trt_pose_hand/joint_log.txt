@@ -1,0 +1,725 @@
+
+=== Frame 75 valid=15 ===
+  palm         = [0, 0]  dist_from_palm=-1.0
+  thumb_1      = [27, 171]  dist_from_palm=-1.0
+  thumb_2      = [18, 179]  dist_from_palm=-1.0
+  thumb_3      = [4, 195]  dist_from_palm=-1.0
+  thumb_4      = [0, 0]  dist_from_palm=-1.0
+  index_1      = [18, 125]  dist_from_palm=-1.0
+  index_2      = [17, 137]  dist_from_palm=-1.0
+  index_3      = [14, 149]  dist_from_palm=-1.0
+  index_4      = [9, 170]  dist_from_palm=-1.0
+  middle_1     = [12, 123]  dist_from_palm=-1.0
+  middle_2     = [11, 134]  dist_from_palm=-1.0
+  middle_3     = [10, 148]  dist_from_palm=-1.0
+  middle_4     = [3, 170]  dist_from_palm=-1.0
+  ring_1       = [17, 133]  dist_from_palm=-1.0
+  ring_2       = [13, 142]  dist_from_palm=-1.0
+  ring_3       = [5, 154]  dist_from_palm=-1.0
+  ring_4       = [2, 175]  dist_from_palm=-1.0
+  baby_1       = [0, 0]  dist_from_palm=-1.0
+  baby_2       = [0, 0]  dist_from_palm=-1.0
+  baby_3       = [0, 0]  dist_from_palm=-1.0
+  baby_4       = [0, 0]  dist_from_palm=-1.0
+  FINGER ANALYSIS:
+    thumb   : missing joints
+    index   : missing joints
+    middle  : missing joints
+    ring    : missing joints
+    baby    : missing joints
+
+=== Frame 80 valid=21 ===
+  palm         = [2, 183]  dist_from_palm=0.0
+  thumb_1      = [41, 149]  dist_from_palm=51.7
+  thumb_2      = [31, 154]  dist_from_palm=41.0
+  thumb_3      = [19, 169]  dist_from_palm=22.0
+  thumb_4      = [9, 178]  dist_from_palm=8.6
+  index_1      = [39, 112]  dist_from_palm=80.1
+  index_2      = [35, 120]  dist_from_palm=71.1
+  index_3      = [31, 129]  dist_from_palm=61.3
+  index_4      = [24, 141]  dist_from_palm=47.4
+  middle_1     = [31, 105]  dist_from_palm=83.2
+  middle_2     = [28, 114]  dist_from_palm=73.7
+  middle_3     = [23, 124]  dist_from_palm=62.6
+  middle_4     = [18, 137]  dist_from_palm=48.7
+  ring_1       = [21, 106]  dist_from_palm=79.3
+  ring_2       = [18, 117]  dist_from_palm=67.9
+  ring_3       = [15, 125]  dist_from_palm=59.4
+  ring_4       = [11, 138]  dist_from_palm=45.9
+  baby_1       = [4, 116]  dist_from_palm=67.0
+  baby_2       = [3, 123]  dist_from_palm=60.0
+  baby_3       = [3, 130]  dist_from_palm=53.0
+  baby_4       = [2, 139]  dist_from_palm=44.0
+  FINGER ANALYSIS:
+    thumb   : tip_d=8.6 mid_d=41.0 base_d=51.7  tip>mid=False  tip>base=False
+    index   : tip_d=47.4 mid_d=71.1 base_d=80.1  tip>mid=False  tip>base=False
+    middle  : tip_d=48.7 mid_d=73.7 base_d=83.2  tip>mid=False  tip>base=False
+    ring    : tip_d=45.9 mid_d=67.9 base_d=79.3  tip>mid=False  tip>base=False
+    baby    : tip_d=44.0 mid_d=60.0 base_d=67.0  tip>mid=False  tip>base=False
+
+=== Frame 85 valid=21 ===
+  palm         = [8, 175]  dist_from_palm=0.0
+  thumb_1      = [46, 143]  dist_from_palm=49.7
+  thumb_2      = [37, 146]  dist_from_palm=41.0
+  thumb_3      = [28, 158]  dist_from_palm=26.2
+  thumb_4      = [17, 168]  dist_from_palm=11.4
+  index_1      = [46, 105]  dist_from_palm=79.6
+  index_2      = [42, 114]  dist_from_palm=69.8
+  index_3      = [37, 122]  dist_from_palm=60.4
+  index_4      = [31, 134]  dist_from_palm=47.0
+  middle_1     = [38, 98]  dist_from_palm=82.6
+  middle_2     = [35, 106]  dist_from_palm=74.1
+  middle_3     = [31, 116]  dist_from_palm=63.3
+  middle_4     = [26, 130]  dist_from_palm=48.5
+  ring_1       = [27, 99]  dist_from_palm=78.3
+  ring_2       = [25, 109]  dist_from_palm=68.2
+  ring_3       = [22, 117]  dist_from_palm=59.7
+  ring_4       = [20, 130]  dist_from_palm=46.6
+  baby_1       = [13, 107]  dist_from_palm=68.2
+  baby_2       = [13, 114]  dist_from_palm=61.2
+  baby_3       = [13, 122]  dist_from_palm=53.2
+  baby_4       = [11, 132]  dist_from_palm=43.1
+  FINGER ANALYSIS:
+    thumb   : tip_d=11.4 mid_d=41.0 base_d=49.7  tip>mid=False  tip>base=False
+    index   : tip_d=47.0 mid_d=69.8 base_d=79.6  tip>mid=False  tip>base=False
+    middle  : tip_d=48.5 mid_d=74.1 base_d=82.6  tip>mid=False  tip>base=False
+    ring    : tip_d=46.6 mid_d=68.2 base_d=78.3  tip>mid=False  tip>base=False
+    baby    : tip_d=43.1 mid_d=61.2 base_d=68.2  tip>mid=False  tip>base=False
+
+=== Frame 90 valid=21 ===
+  palm         = [11, 177]  dist_from_palm=0.0
+  thumb_1      = [49, 146]  dist_from_palm=49.0
+  thumb_2      = [40, 150]  dist_from_palm=39.6
+  thumb_3      = [30, 163]  dist_from_palm=23.6
+  thumb_4      = [19, 172]  dist_from_palm=9.4
+  index_1      = [49, 107]  dist_from_palm=79.6
+  index_2      = [44, 116]  dist_from_palm=69.4
+  index_3      = [40, 125]  dist_from_palm=59.5
+  index_4      = [34, 137]  dist_from_palm=46.1
+  middle_1     = [42, 97]  dist_from_palm=85.8
+  middle_2     = [38, 107]  dist_from_palm=75.0
+  middle_3     = [34, 118]  dist_from_palm=63.3
+  middle_4     = [29, 132]  dist_from_palm=48.5
+  ring_1       = [32, 99]  dist_from_palm=80.8
+  ring_2       = [29, 109]  dist_from_palm=70.3
+  ring_3       = [26, 118]  dist_from_palm=60.9
+  ring_4       = [22, 132]  dist_from_palm=46.3
+  baby_1       = [15, 107]  dist_from_palm=70.1
+  baby_2       = [15, 114]  dist_from_palm=63.1
+  baby_3       = [14, 123]  dist_from_palm=54.1
+  baby_4       = [14, 134]  dist_from_palm=43.1
+  FINGER ANALYSIS:
+    thumb   : tip_d=9.4 mid_d=39.6 base_d=49.0  tip>mid=False  tip>base=False
+    index   : tip_d=46.1 mid_d=69.4 base_d=79.6  tip>mid=False  tip>base=False
+    middle  : tip_d=48.5 mid_d=75.0 base_d=85.8  tip>mid=False  tip>base=False
+    ring    : tip_d=46.3 mid_d=70.3 base_d=80.8  tip>mid=False  tip>base=False
+    baby    : tip_d=43.1 mid_d=63.1 base_d=70.1  tip>mid=False  tip>base=False
+
+=== Frame 95 valid=21 ===
+  palm         = [9, 181]  dist_from_palm=0.0
+  thumb_1      = [50, 149]  dist_from_palm=52.0
+  thumb_2      = [41, 151]  dist_from_palm=43.9
+  thumb_3      = [30, 165]  dist_from_palm=26.4
+  thumb_4      = [18, 175]  dist_from_palm=10.8
+  index_1      = [49, 107]  dist_from_palm=84.1
+  index_2      = [44, 117]  dist_from_palm=72.9
+  index_3      = [40, 126]  dist_from_palm=63.1
+  index_4      = [34, 138]  dist_from_palm=49.7
+  middle_1     = [42, 98]  dist_from_palm=89.3
+  middle_2     = [38, 107]  dist_from_palm=79.5
+  middle_3     = [34, 118]  dist_from_palm=67.8
+  middle_4     = [28, 133]  dist_from_palm=51.6
+  ring_1       = [31, 99]  dist_from_palm=84.9
+  ring_2       = [28, 110]  dist_from_palm=73.5
+  ring_3       = [26, 119]  dist_from_palm=64.3
+  ring_4       = [22, 133]  dist_from_palm=49.7
+  baby_1       = [15, 107]  dist_from_palm=74.2
+  baby_2       = [14, 116]  dist_from_palm=65.2
+  baby_3       = [14, 125]  dist_from_palm=56.2
+  baby_4       = [13, 136]  dist_from_palm=45.2
+  FINGER ANALYSIS:
+    thumb   : tip_d=10.8 mid_d=43.9 base_d=52.0  tip>mid=False  tip>base=False
+    index   : tip_d=49.7 mid_d=72.9 base_d=84.1  tip>mid=False  tip>base=False
+    middle  : tip_d=51.6 mid_d=79.5 base_d=89.3  tip>mid=False  tip>base=False
+    ring    : tip_d=49.7 mid_d=73.5 base_d=84.9  tip>mid=False  tip>base=False
+    baby    : tip_d=45.2 mid_d=65.2 base_d=74.2  tip>mid=False  tip>base=False
+
+=== Frame 100 valid=21 ===
+  palm         = [5, 183]  dist_from_palm=0.0
+  thumb_1      = [50, 151]  dist_from_palm=55.2
+  thumb_2      = [41, 153]  dist_from_palm=46.9
+  thumb_3      = [28, 167]  dist_from_palm=28.0
+  thumb_4      = [17, 178]  dist_from_palm=13.0
+  index_1      = [47, 106]  dist_from_palm=87.7
+  index_2      = [43, 116]  dist_from_palm=77.0
+  index_3      = [39, 125]  dist_from_palm=67.2
+  index_4      = [33, 137]  dist_from_palm=53.9
+  middle_1     = [39, 97]  dist_from_palm=92.5
+  middle_2     = [36, 107]  dist_from_palm=82.1
+  middle_3     = [32, 117]  dist_from_palm=71.3
+  middle_4     = [27, 132]  dist_from_palm=55.5
+  ring_1       = [27, 99]  dist_from_palm=86.8
+  ring_2       = [25, 110]  dist_from_palm=75.7
+  ring_3       = [22, 119]  dist_from_palm=66.2
+  ring_4       = [19, 133]  dist_from_palm=51.9
+  baby_1       = [11, 109]  dist_from_palm=74.2
+  baby_2       = [11, 118]  dist_from_palm=65.3
+  baby_3       = [11, 126]  dist_from_palm=57.3
+  baby_4       = [10, 136]  dist_from_palm=47.3
+  FINGER ANALYSIS:
+    thumb   : tip_d=13.0 mid_d=46.9 base_d=55.2  tip>mid=False  tip>base=False
+    index   : tip_d=53.9 mid_d=77.0 base_d=87.7  tip>mid=False  tip>base=False
+    middle  : tip_d=55.5 mid_d=82.1 base_d=92.5  tip>mid=False  tip>base=False
+    ring    : tip_d=51.9 mid_d=75.7 base_d=86.8  tip>mid=False  tip>base=False
+    baby    : tip_d=47.3 mid_d=65.3 base_d=74.2  tip>mid=False  tip>base=False
+
+=== Frame 105 valid=21 ===
+  palm         = [9, 190]  dist_from_palm=0.0
+  thumb_1      = [53, 157]  dist_from_palm=55.0
+  thumb_2      = [42, 162]  dist_from_palm=43.3
+  thumb_3      = [31, 174]  dist_from_palm=27.2
+  thumb_4      = [20, 183]  dist_from_palm=13.0
+  index_1      = [51, 111]  dist_from_palm=89.5
+  index_2      = [46, 121]  dist_from_palm=78.3
+  index_3      = [41, 131]  dist_from_palm=67.1
+  index_4      = [35, 144]  dist_from_palm=52.8
+  middle_1     = [43, 100]  dist_from_palm=96.2
+  middle_2     = [39, 111]  dist_from_palm=84.5
+  middle_3     = [35, 123]  dist_from_palm=71.9
+  middle_4     = [29, 138]  dist_from_palm=55.7
+  ring_1       = [31, 101]  dist_from_palm=91.7
+  ring_2       = [29, 112]  dist_from_palm=80.5
+  ring_3       = [26, 124]  dist_from_palm=68.2
+  ring_4       = [22, 138]  dist_from_palm=53.6
+  baby_1       = [15, 110]  dist_from_palm=80.2
+  baby_2       = [14, 119]  dist_from_palm=71.2
+  baby_3       = [14, 129]  dist_from_palm=61.2
+  baby_4       = [13, 139]  dist_from_palm=51.2
+  FINGER ANALYSIS:
+    thumb   : tip_d=13.0 mid_d=43.3 base_d=55.0  tip>mid=False  tip>base=False
+    index   : tip_d=52.8 mid_d=78.3 base_d=89.5  tip>mid=False  tip>base=False
+    middle  : tip_d=55.7 mid_d=84.5 base_d=96.2  tip>mid=False  tip>base=False
+    ring    : tip_d=53.6 mid_d=80.5 base_d=91.7  tip>mid=False  tip>base=False
+    baby    : tip_d=51.2 mid_d=71.2 base_d=80.2  tip>mid=False  tip>base=False
+
+=== Frame 110 valid=21 ===
+  palm         = [13, 197]  dist_from_palm=0.0
+  thumb_1      = [59, 165]  dist_from_palm=56.0
+  thumb_2      = [47, 169]  dist_from_palm=44.0
+  thumb_3      = [35, 181]  dist_from_palm=27.2
+  thumb_4      = [23, 190]  dist_from_palm=12.2
+  index_1      = [54, 117]  dist_from_palm=89.9
+  index_2      = [49, 127]  dist_from_palm=78.7
+  index_3      = [44, 137]  dist_from_palm=67.5
+  index_4      = [37, 150]  dist_from_palm=52.8
+  middle_1     = [45, 103]  dist_from_palm=99.3
+  middle_2     = [41, 114]  dist_from_palm=87.6
+  middle_3     = [37, 127]  dist_from_palm=74.0
+  middle_4     = [31, 144]  dist_from_palm=56.0
+  ring_1       = [33, 105]  dist_from_palm=94.1
+  ring_2       = [30, 117]  dist_from_palm=81.8
+  ring_3       = [27, 130]  dist_from_palm=68.4
+  ring_4       = [23, 145]  dist_from_palm=53.0
+  baby_1       = [16, 115]  dist_from_palm=82.1
+  baby_2       = [15, 125]  dist_from_palm=72.0
+  baby_3       = [15, 134]  dist_from_palm=63.0
+  baby_4       = [14, 146]  dist_from_palm=51.0
+  FINGER ANALYSIS:
+    thumb   : tip_d=12.2 mid_d=44.0 base_d=56.0  tip>mid=False  tip>base=False
+    index   : tip_d=52.8 mid_d=78.7 base_d=89.9  tip>mid=False  tip>base=False
+    middle  : tip_d=56.0 mid_d=87.6 base_d=99.3  tip>mid=False  tip>base=False
+    ring    : tip_d=53.0 mid_d=81.8 base_d=94.1  tip>mid=False  tip>base=False
+    baby    : tip_d=51.0 mid_d=72.0 base_d=82.1  tip>mid=False  tip>base=False
+
+=== Frame 115 valid=21 ===
+  palm         = [13, 198]  dist_from_palm=0.0
+  thumb_1      = [59, 166]  dist_from_palm=56.0
+  thumb_2      = [47, 169]  dist_from_palm=44.7
+  thumb_3      = [34, 182]  dist_from_palm=26.4
+  thumb_4      = [23, 191]  dist_from_palm=12.2
+  index_1      = [54, 117]  dist_from_palm=90.8
+  index_2      = [49, 127]  dist_from_palm=79.6
+  index_3      = [44, 137]  dist_from_palm=68.4
+  index_4      = [37, 150]  dist_from_palm=53.7
+  middle_1     = [44, 105]  dist_from_palm=98.0
+  middle_2     = [41, 115]  dist_from_palm=87.6
+  middle_3     = [37, 128]  dist_from_palm=74.0
+  middle_4     = [31, 144]  dist_from_palm=56.9
+  ring_1       = [33, 106]  dist_from_palm=94.1
+  ring_2       = [29, 118]  dist_from_palm=81.6
+  ring_3       = [27, 130]  dist_from_palm=69.4
+  ring_4       = [23, 145]  dist_from_palm=53.9
+  baby_1       = [15, 117]  dist_from_palm=81.0
+  baby_2       = [14, 127]  dist_from_palm=71.0
+  baby_3       = [14, 136]  dist_from_palm=62.0
+  baby_4       = [13, 147]  dist_from_palm=51.0
+  FINGER ANALYSIS:
+    thumb   : tip_d=12.2 mid_d=44.7 base_d=56.0  tip>mid=False  tip>base=False
+    index   : tip_d=53.7 mid_d=79.6 base_d=90.8  tip>mid=False  tip>base=False
+    middle  : tip_d=56.9 mid_d=87.6 base_d=98.0  tip>mid=False  tip>base=False
+    ring    : tip_d=53.9 mid_d=81.6 base_d=94.1  tip>mid=False  tip>base=False
+    baby    : tip_d=51.0 mid_d=71.0 base_d=81.0  tip>mid=False  tip>base=False
+
+=== Frame 120 valid=21 ===
+  palm         = [13, 198]  dist_from_palm=0.0
+  thumb_1      = [58, 165]  dist_from_palm=55.8
+  thumb_2      = [46, 169]  dist_from_palm=43.9
+  thumb_3      = [35, 182]  dist_from_palm=27.2
+  thumb_4      = [23, 191]  dist_from_palm=12.2
+  index_1      = [54, 118]  dist_from_palm=89.9
+  index_2      = [49, 127]  dist_from_palm=79.6
+  index_3      = [44, 138]  dist_from_palm=67.5
+  index_4      = [37, 150]  dist_from_palm=53.7
+  middle_1     = [45, 105]  dist_from_palm=98.4
+  middle_2     = [41, 115]  dist_from_palm=87.6
+  middle_3     = [37, 128]  dist_from_palm=74.0
+  middle_4     = [31, 145]  dist_from_palm=56.0
+  ring_1       = [33, 106]  dist_from_palm=94.1
+  ring_2       = [29, 118]  dist_from_palm=81.6
+  ring_3       = [27, 131]  dist_from_palm=68.4
+  ring_4       = [23, 146]  dist_from_palm=53.0
+  baby_1       = [15, 117]  dist_from_palm=81.0
+  baby_2       = [15, 127]  dist_from_palm=71.0
+  baby_3       = [14, 137]  dist_from_palm=61.0
+  baby_4       = [13, 148]  dist_from_palm=50.0
+  FINGER ANALYSIS:
+    thumb   : tip_d=12.2 mid_d=43.9 base_d=55.8  tip>mid=False  tip>base=False
+    index   : tip_d=53.7 mid_d=79.6 base_d=89.9  tip>mid=False  tip>base=False
+    middle  : tip_d=56.0 mid_d=87.6 base_d=98.4  tip>mid=False  tip>base=False
+    ring    : tip_d=53.0 mid_d=81.6 base_d=94.1  tip>mid=False  tip>base=False
+    baby    : tip_d=50.0 mid_d=71.0 base_d=81.0  tip>mid=False  tip>base=False
+
+=== Frame 125 valid=21 ===
+  palm         = [13, 197]  dist_from_palm=0.0
+  thumb_1      = [57, 164]  dist_from_palm=55.0
+  thumb_2      = [46, 168]  dist_from_palm=43.9
+  thumb_3      = [34, 181]  dist_from_palm=26.4
+  thumb_4      = [23, 191]  dist_from_palm=11.7
+  index_1      = [53, 116]  dist_from_palm=90.3
+  index_2      = [49, 126]  dist_from_palm=79.6
+  index_3      = [44, 137]  dist_from_palm=67.5
+  index_4      = [37, 150]  dist_from_palm=52.8
+  middle_1     = [45, 103]  dist_from_palm=99.3
+  middle_2     = [41, 114]  dist_from_palm=87.6
+  middle_3     = [36, 127]  dist_from_palm=73.7
+  middle_4     = [31, 145]  dist_from_palm=55.0
+  ring_1       = [33, 106]  dist_from_palm=93.2
+  ring_2       = [29, 118]  dist_from_palm=80.6
+  ring_3       = [26, 130]  dist_from_palm=68.2
+  ring_4       = [23, 146]  dist_from_palm=52.0
+  baby_1       = [15, 117]  dist_from_palm=80.0
+  baby_2       = [14, 127]  dist_from_palm=70.0
+  baby_3       = [14, 137]  dist_from_palm=60.0
+  baby_4       = [13, 148]  dist_from_palm=49.0
+  FINGER ANALYSIS:
+    thumb   : tip_d=11.7 mid_d=43.9 base_d=55.0  tip>mid=False  tip>base=False
+    index   : tip_d=52.8 mid_d=79.6 base_d=90.3  tip>mid=False  tip>base=False
+    middle  : tip_d=55.0 mid_d=87.6 base_d=99.3  tip>mid=False  tip>base=False
+    ring    : tip_d=52.0 mid_d=80.6 base_d=93.2  tip>mid=False  tip>base=False
+    baby    : tip_d=49.0 mid_d=70.0 base_d=80.0  tip>mid=False  tip>base=False
+
+=== Frame 130 valid=21 ===
+  palm         = [11, 197]  dist_from_palm=0.0
+  thumb_1      = [56, 163]  dist_from_palm=56.4
+  thumb_2      = [45, 167]  dist_from_palm=45.3
+  thumb_3      = [33, 181]  dist_from_palm=27.2
+  thumb_4      = [21, 191]  dist_from_palm=11.7
+  index_1      = [53, 116]  dist_from_palm=91.2
+  index_2      = [48, 126]  dist_from_palm=80.1
+  index_3      = [43, 137]  dist_from_palm=68.0
+  index_4      = [36, 150]  dist_from_palm=53.2
+  middle_1     = [44, 103]  dist_from_palm=99.6
+  middle_2     = [40, 114]  dist_from_palm=87.9
+  middle_3     = [36, 127]  dist_from_palm=74.3
+  middle_4     = [30, 144]  dist_from_palm=56.3
+  ring_1       = [32, 105]  dist_from_palm=94.4
+  ring_2       = [28, 117]  dist_from_palm=81.8
+  ring_3       = [26, 130]  dist_from_palm=68.7
+  ring_4       = [22, 145]  dist_from_palm=53.2
+  baby_1       = [14, 116]  dist_from_palm=81.1
+  baby_2       = [14, 126]  dist_from_palm=71.1
+  baby_3       = [13, 135]  dist_from_palm=62.0
+  baby_4       = [11, 147]  dist_from_palm=50.0
+  FINGER ANALYSIS:
+    thumb   : tip_d=11.7 mid_d=45.3 base_d=56.4  tip>mid=False  tip>base=False
+    index   : tip_d=53.2 mid_d=80.1 base_d=91.2  tip>mid=False  tip>base=False
+    middle  : tip_d=56.3 mid_d=87.9 base_d=99.6  tip>mid=False  tip>base=False
+    ring    : tip_d=53.2 mid_d=81.8 base_d=94.4  tip>mid=False  tip>base=False
+    baby    : tip_d=50.0 mid_d=71.1 base_d=81.1  tip>mid=False  tip>base=False
+
+=== Frame 135 valid=21 ===
+  palm         = [12, 198]  dist_from_palm=0.0
+  thumb_1      = [56, 164]  dist_from_palm=55.6
+  thumb_2      = [45, 169]  dist_from_palm=43.9
+  thumb_3      = [34, 182]  dist_from_palm=27.2
+  thumb_4      = [22, 192]  dist_from_palm=11.7
+  index_1      = [53, 118]  dist_from_palm=89.9
+  index_2      = [48, 127]  dist_from_palm=79.6
+  index_3      = [43, 138]  dist_from_palm=67.5
+  index_4      = [36, 150]  dist_from_palm=53.7
+  middle_1     = [44, 105]  dist_from_palm=98.4
+  middle_2     = [40, 115]  dist_from_palm=87.6
+  middle_3     = [36, 128]  dist_from_palm=74.0
+  middle_4     = [30, 145]  dist_from_palm=56.0
+  ring_1       = [32, 105]  dist_from_palm=95.1
+  ring_2       = [29, 118]  dist_from_palm=81.8
+  ring_3       = [26, 130]  dist_from_palm=69.4
+  ring_4       = [23, 145]  dist_from_palm=54.1
+  baby_1       = [15, 116]  dist_from_palm=82.1
+  baby_2       = [14, 126]  dist_from_palm=72.0
+  baby_3       = [14, 136]  dist_from_palm=62.0
+  baby_4       = [12, 147]  dist_from_palm=51.0
+  FINGER ANALYSIS:
+    thumb   : tip_d=11.7 mid_d=43.9 base_d=55.6  tip>mid=False  tip>base=False
+    index   : tip_d=53.7 mid_d=79.6 base_d=89.9  tip>mid=False  tip>base=False
+    middle  : tip_d=56.0 mid_d=87.6 base_d=98.4  tip>mid=False  tip>base=False
+    ring    : tip_d=54.1 mid_d=81.8 base_d=95.1  tip>mid=False  tip>base=False
+    baby    : tip_d=51.0 mid_d=72.0 base_d=82.1  tip>mid=False  tip>base=False
+
+=== Frame 140 valid=21 ===
+  palm         = [16, 201]  dist_from_palm=0.0
+  thumb_1      = [60, 166]  dist_from_palm=56.2
+  thumb_2      = [50, 172]  dist_from_palm=44.7
+  thumb_3      = [38, 186]  dist_from_palm=26.6
+  thumb_4      = [27, 195]  dist_from_palm=12.5
+  index_1      = [58, 120]  dist_from_palm=91.2
+  index_2      = [53, 131]  dist_from_palm=79.2
+  index_3      = [48, 141]  dist_from_palm=68.0
+  index_4      = [41, 154]  dist_from_palm=53.2
+  middle_1     = [49, 107]  dist_from_palm=99.6
+  middle_2     = [45, 119]  dist_from_palm=87.0
+  middle_3     = [41, 132]  dist_from_palm=73.4
+  middle_4     = [35, 149]  dist_from_palm=55.4
+  ring_1       = [38, 109]  dist_from_palm=94.6
+  ring_2       = [34, 121]  dist_from_palm=82.0
+  ring_3       = [31, 134]  dist_from_palm=68.7
+  ring_4       = [28, 149]  dist_from_palm=53.4
+  baby_1       = [18, 118]  dist_from_palm=83.0
+  baby_2       = [18, 129]  dist_from_palm=72.0
+  baby_3       = [19, 139]  dist_from_palm=62.1
+  baby_4       = [18, 151]  dist_from_palm=50.0
+  FINGER ANALYSIS:
+    thumb   : tip_d=12.5 mid_d=44.7 base_d=56.2  tip>mid=False  tip>base=False
+    index   : tip_d=53.2 mid_d=79.2 base_d=91.2  tip>mid=False  tip>base=False
+    middle  : tip_d=55.4 mid_d=87.0 base_d=99.6  tip>mid=False  tip>base=False
+    ring    : tip_d=53.4 mid_d=82.0 base_d=94.6  tip>mid=False  tip>base=False
+    baby    : tip_d=50.0 mid_d=72.0 base_d=83.0  tip>mid=False  tip>base=False
+
+=== Frame 145 valid=21 ===
+  palm         = [31, 207]  dist_from_palm=0.0
+  thumb_1      = [71, 172]  dist_from_palm=53.2
+  thumb_2      = [66, 186]  dist_from_palm=40.8
+  thumb_3      = [59, 203]  dist_from_palm=28.3
+  thumb_4      = [45, 207]  dist_from_palm=14.0
+  index_1      = [73, 128]  dist_from_palm=89.5
+  index_2      = [70, 139]  dist_from_palm=78.4
+  index_3      = [67, 151]  dist_from_palm=66.6
+  index_4      = [61, 169]  dist_from_palm=48.4
+  middle_1     = [66, 115]  dist_from_palm=98.4
+  middle_2     = [64, 129]  dist_from_palm=84.7
+  middle_3     = [60, 141]  dist_from_palm=72.1
+  middle_4     = [54, 159]  dist_from_palm=53.2
+  ring_1       = [55, 111]  dist_from_palm=99.0
+  ring_2       = [52, 124]  dist_from_palm=85.6
+  ring_3       = [50, 138]  dist_from_palm=71.6
+  ring_4       = [47, 157]  dist_from_palm=52.5
+  baby_1       = [39, 118]  dist_from_palm=89.4
+  baby_2       = [38, 130]  dist_from_palm=77.3
+  baby_3       = [38, 141]  dist_from_palm=66.4
+  baby_4       = [38, 158]  dist_from_palm=49.5
+  FINGER ANALYSIS:
+    thumb   : tip_d=14.0 mid_d=40.8 base_d=53.2  tip>mid=False  tip>base=False
+    index   : tip_d=48.4 mid_d=78.4 base_d=89.5  tip>mid=False  tip>base=False
+    middle  : tip_d=53.2 mid_d=84.7 base_d=98.4  tip>mid=False  tip>base=False
+    ring    : tip_d=52.5 mid_d=85.6 base_d=99.0  tip>mid=False  tip>base=False
+    baby    : tip_d=49.5 mid_d=77.3 base_d=89.4  tip>mid=False  tip>base=False
+
+=== Frame 150 valid=21 ===
+  palm         = [44, 215]  dist_from_palm=0.0
+  thumb_1      = [88, 181]  dist_from_palm=55.6
+  thumb_2      = [78, 188]  dist_from_palm=43.4
+  thumb_3      = [68, 207]  dist_from_palm=25.3
+  thumb_4      = [56, 213]  dist_from_palm=12.2
+  index_1      = [90, 139]  dist_from_palm=88.8
+  index_2      = [85, 150]  dist_from_palm=76.9
+  index_3      = [81, 159]  dist_from_palm=67.1
+  index_4      = [73, 174]  dist_from_palm=50.2
+  middle_1     = [83, 126]  dist_from_palm=97.2
+  middle_2     = [79, 138]  dist_from_palm=84.6
+  middle_3     = [75, 150]  dist_from_palm=72.0
+  middle_4     = [69, 164]  dist_from_palm=56.8
+  ring_1       = [75, 121]  dist_from_palm=99.0
+  ring_2       = [70, 133]  dist_from_palm=86.0
+  ring_3       = [67, 147]  dist_from_palm=71.8
+  ring_4       = [63, 163]  dist_from_palm=55.4
+  baby_1       = [57, 125]  dist_from_palm=90.9
+  baby_2       = [57, 137]  dist_from_palm=79.1
+  baby_3       = [57, 149]  dist_from_palm=67.3
+  baby_4       = [55, 165]  dist_from_palm=51.2
+  FINGER ANALYSIS:
+    thumb   : tip_d=12.2 mid_d=43.4 base_d=55.6  tip>mid=False  tip>base=False
+    index   : tip_d=50.2 mid_d=76.9 base_d=88.8  tip>mid=False  tip>base=False
+    middle  : tip_d=56.8 mid_d=84.6 base_d=97.2  tip>mid=False  tip>base=False
+    ring    : tip_d=55.4 mid_d=86.0 base_d=99.0  tip>mid=False  tip>base=False
+    baby    : tip_d=51.2 mid_d=79.1 base_d=90.9  tip>mid=False  tip>base=False
+
+=== Frame 155 valid=21 ===
+  palm         = [52, 215]  dist_from_palm=0.0
+  thumb_1      = [96, 183]  dist_from_palm=54.4
+  thumb_2      = [87, 189]  dist_from_palm=43.6
+  thumb_3      = [76, 203]  dist_from_palm=26.8
+  thumb_4      = [64, 211]  dist_from_palm=12.6
+  index_1      = [99, 139]  dist_from_palm=89.4
+  index_2      = [94, 150]  dist_from_palm=77.4
+  index_3      = [90, 160]  dist_from_palm=66.9
+  index_4      = [81, 174]  dist_from_palm=50.2
+  middle_1     = [91, 125]  dist_from_palm=98.1
+  middle_2     = [87, 138]  dist_from_palm=84.6
+  middle_3     = [82, 151]  dist_from_palm=70.7
+  middle_4     = [77, 167]  dist_from_palm=54.1
+  ring_1       = [80, 123]  dist_from_palm=96.2
+  ring_2       = [76, 137]  dist_from_palm=81.6
+  ring_3       = [73, 151]  dist_from_palm=67.4
+  ring_4       = [70, 167]  dist_from_palm=51.3
+  baby_1       = [66, 130]  dist_from_palm=86.1
+  baby_2       = [65, 143]  dist_from_palm=73.2
+  baby_3       = [63, 154]  dist_from_palm=62.0
+  baby_4       = [60, 169]  dist_from_palm=46.7
+  FINGER ANALYSIS:
+    thumb   : tip_d=12.6 mid_d=43.6 base_d=54.4  tip>mid=False  tip>base=False
+    index   : tip_d=50.2 mid_d=77.4 base_d=89.4  tip>mid=False  tip>base=False
+    middle  : tip_d=54.1 mid_d=84.6 base_d=98.1  tip>mid=False  tip>base=False
+    ring    : tip_d=51.3 mid_d=81.6 base_d=96.2  tip>mid=False  tip>base=False
+    baby    : tip_d=46.7 mid_d=73.2 base_d=86.1  tip>mid=False  tip>base=False
+
+=== Frame 160 valid=21 ===
+  palm         = [55, 222]  dist_from_palm=0.0
+  thumb_1      = [98, 185]  dist_from_palm=56.7
+  thumb_2      = [90, 191]  dist_from_palm=46.8
+  thumb_3      = [79, 206]  dist_from_palm=28.8
+  thumb_4      = [66, 219]  dist_from_palm=11.4
+  index_1      = [101, 140]  dist_from_palm=94.0
+  index_2      = [97, 150]  dist_from_palm=83.4
+  index_3      = [93, 161]  dist_from_palm=71.9
+  index_4      = [85, 176]  dist_from_palm=54.9
+  middle_1     = [94, 127]  dist_from_palm=102.7
+  middle_2     = [90, 139]  dist_from_palm=90.1
+  middle_3     = [86, 152]  dist_from_palm=76.6
+  middle_4     = [79, 169]  dist_from_palm=58.2
+  ring_1       = [83, 125]  dist_from_palm=101.0
+  ring_2       = [80, 139]  dist_from_palm=86.7
+  ring_3       = [76, 152]  dist_from_palm=73.1
+  ring_4       = [72, 169]  dist_from_palm=55.7
+  baby_1       = [70, 135]  dist_from_palm=88.3
+  baby_2       = [68, 146]  dist_from_palm=77.1
+  baby_3       = [65, 158]  dist_from_palm=64.8
+  baby_4       = [61, 173]  dist_from_palm=49.4
+  FINGER ANALYSIS:
+    thumb   : tip_d=11.4 mid_d=46.8 base_d=56.7  tip>mid=False  tip>base=False
+    index   : tip_d=54.9 mid_d=83.4 base_d=94.0  tip>mid=False  tip>base=False
+    middle  : tip_d=58.2 mid_d=90.1 base_d=102.7  tip>mid=False  tip>base=False
+    ring    : tip_d=55.7 mid_d=86.7 base_d=101.0  tip>mid=False  tip>base=False
+    baby    : tip_d=49.4 mid_d=77.1 base_d=88.3  tip>mid=False  tip>base=False
+
+=== Frame 165 valid=21 ===
+  palm         = [55, 222]  dist_from_palm=0.0
+  thumb_1      = [99, 187]  dist_from_palm=56.2
+  thumb_2      = [90, 194]  dist_from_palm=44.8
+  thumb_3      = [79, 209]  dist_from_palm=27.3
+  thumb_4      = [67, 219]  dist_from_palm=12.4
+  index_1      = [102, 145]  dist_from_palm=90.2
+  index_2      = [98, 154]  dist_from_palm=80.5
+  index_3      = [94, 165]  dist_from_palm=69.1
+  index_4      = [85, 179]  dist_from_palm=52.4
+  middle_1     = [96, 131]  dist_from_palm=99.8
+  middle_2     = [91, 143]  dist_from_palm=86.8
+  middle_3     = [86, 156]  dist_from_palm=72.9
+  middle_4     = [79, 173]  dist_from_palm=54.6
+  ring_1       = [86, 127]  dist_from_palm=99.9
+  ring_2       = [81, 141]  dist_from_palm=85.1
+  ring_3       = [77, 154]  dist_from_palm=71.5
+  ring_4       = [72, 172]  dist_from_palm=52.8
+  baby_1       = [71, 135]  dist_from_palm=88.5
+  baby_2       = [69, 147]  dist_from_palm=76.3
+  baby_3       = [66, 158]  dist_from_palm=64.9
+  baby_4       = [62, 174]  dist_from_palm=48.5
+  FINGER ANALYSIS:
+    thumb   : tip_d=12.4 mid_d=44.8 base_d=56.2  tip>mid=False  tip>base=False
+    index   : tip_d=52.4 mid_d=80.5 base_d=90.2  tip>mid=False  tip>base=False
+    middle  : tip_d=54.6 mid_d=86.8 base_d=99.8  tip>mid=False  tip>base=False
+    ring    : tip_d=52.8 mid_d=85.1 base_d=99.9  tip>mid=False  tip>base=False
+    baby    : tip_d=48.5 mid_d=76.3 base_d=88.5  tip>mid=False  tip>base=False
+
+=== Frame 170 valid=21 ===
+  palm         = [56, 222]  dist_from_palm=0.0
+  thumb_1      = [99, 191]  dist_from_palm=53.0
+  thumb_2      = [89, 199]  dist_from_palm=40.2
+  thumb_3      = [78, 214]  dist_from_palm=23.4
+  thumb_4      = [66, 221]  dist_from_palm=10.0
+  index_1      = [101, 150]  dist_from_palm=84.9
+  index_2      = [98, 159]  dist_from_palm=75.7
+  index_3      = [94, 169]  dist_from_palm=65.2
+  index_4      = [84, 185]  dist_from_palm=46.4
+  middle_1     = [95, 135]  dist_from_palm=95.3
+  middle_2     = [91, 148]  dist_from_palm=81.9
+  middle_3     = [86, 160]  dist_from_palm=68.9
+  middle_4     = [79, 177]  dist_from_palm=50.5
+  ring_1       = [85, 131]  dist_from_palm=95.5
+  ring_2       = [81, 145]  dist_from_palm=81.0
+  ring_3       = [77, 158]  dist_from_palm=67.4
+  ring_4       = [72, 175]  dist_from_palm=49.6
+  baby_1       = [70, 138]  dist_from_palm=85.2
+  baby_2       = [68, 150]  dist_from_palm=73.0
+  baby_3       = [66, 161]  dist_from_palm=61.8
+  baby_4       = [62, 178]  dist_from_palm=44.4
+  FINGER ANALYSIS:
+    thumb   : tip_d=10.0 mid_d=40.2 base_d=53.0  tip>mid=False  tip>base=False
+    index   : tip_d=46.4 mid_d=75.7 base_d=84.9  tip>mid=False  tip>base=False
+    middle  : tip_d=50.5 mid_d=81.9 base_d=95.3  tip>mid=False  tip>base=False
+    ring    : tip_d=49.6 mid_d=81.0 base_d=95.5  tip>mid=False  tip>base=False
+    baby    : tip_d=44.4 mid_d=73.0 base_d=85.2  tip>mid=False  tip>base=False
+
+=== Frame 175 valid=21 ===
+  palm         = [54, 222]  dist_from_palm=0.0
+  thumb_1      = [95, 193]  dist_from_palm=50.2
+  thumb_2      = [86, 201]  dist_from_palm=38.3
+  thumb_3      = [75, 214]  dist_from_palm=22.5
+  thumb_4      = [64, 222]  dist_from_palm=10.0
+  index_1      = [99, 152]  dist_from_palm=83.2
+  index_2      = [96, 161]  dist_from_palm=74.1
+  index_3      = [91, 171]  dist_from_palm=63.0
+  index_4      = [82, 186]  dist_from_palm=45.6
+  middle_1     = [92, 137]  dist_from_palm=93.1
+  middle_2     = [89, 148]  dist_from_palm=81.9
+  middle_3     = [84, 162]  dist_from_palm=67.1
+  middle_4     = [76, 179]  dist_from_palm=48.3
+  ring_1       = [79, 132]  dist_from_palm=93.4
+  ring_2       = [77, 146]  dist_from_palm=79.4
+  ring_3       = [74, 159]  dist_from_palm=66.1
+  ring_4       = [69, 178]  dist_from_palm=46.5
+  baby_1       = [67, 138]  dist_from_palm=85.0
+  baby_2       = [65, 151]  dist_from_palm=71.8
+  baby_3       = [62, 163]  dist_from_palm=59.5
+  baby_4       = [58, 179]  dist_from_palm=43.2
+  FINGER ANALYSIS:
+    thumb   : tip_d=10.0 mid_d=38.3 base_d=50.2  tip>mid=False  tip>base=False
+    index   : tip_d=45.6 mid_d=74.1 base_d=83.2  tip>mid=False  tip>base=False
+    middle  : tip_d=48.3 mid_d=81.9 base_d=93.1  tip>mid=False  tip>base=False
+    ring    : tip_d=46.5 mid_d=79.4 base_d=93.4  tip>mid=False  tip>base=False
+    baby    : tip_d=43.2 mid_d=71.8 base_d=85.0  tip>mid=False  tip>base=False
+
+=== Frame 180 valid=21 ===
+  palm         = [52, 216]  dist_from_palm=0.0
+  thumb_1      = [91, 191]  dist_from_palm=46.3
+  thumb_2      = [82, 197]  dist_from_palm=35.5
+  thumb_3      = [72, 208]  dist_from_palm=21.5
+  thumb_4      = [62, 211]  dist_from_palm=11.2
+  index_1      = [94, 146]  dist_from_palm=81.6
+  index_2      = [90, 155]  dist_from_palm=71.9
+  index_3      = [86, 165]  dist_from_palm=61.3
+  index_4      = [78, 179]  dist_from_palm=45.2
+  middle_1     = [87, 131]  dist_from_palm=91.9
+  middle_2     = [83, 144]  dist_from_palm=78.4
+  middle_3     = [79, 157]  dist_from_palm=64.9
+  middle_4     = [73, 171]  dist_from_palm=49.7
+  ring_1       = [75, 127]  dist_from_palm=91.9
+  ring_2       = [72, 141]  dist_from_palm=77.6
+  ring_3       = [70, 154]  dist_from_palm=64.6
+  ring_4       = [67, 170]  dist_from_palm=48.4
+  baby_1       = [61, 131]  dist_from_palm=85.5
+  baby_2       = [60, 145]  dist_from_palm=71.4
+  baby_3       = [60, 155]  dist_from_palm=61.5
+  baby_4       = [59, 170]  dist_from_palm=46.5
+  FINGER ANALYSIS:
+    thumb   : tip_d=11.2 mid_d=35.5 base_d=46.3  tip>mid=False  tip>base=False
+    index   : tip_d=45.2 mid_d=71.9 base_d=81.6  tip>mid=False  tip>base=False
+    middle  : tip_d=49.7 mid_d=78.4 base_d=91.9  tip>mid=False  tip>base=False
+    ring    : tip_d=48.4 mid_d=77.6 base_d=91.9  tip>mid=False  tip>base=False
+    baby    : tip_d=46.5 mid_d=71.4 base_d=85.5  tip>mid=False  tip>base=False
+
+=== Frame 185 valid=21 ===
+  palm         = [34, 213]  dist_from_palm=0.0
+  thumb_1      = [85, 181]  dist_from_palm=60.2
+  thumb_2      = [74, 193]  dist_from_palm=44.7
+  thumb_3      = [64, 214]  dist_from_palm=30.0
+  thumb_4      = [51, 215]  dist_from_palm=17.1
+  index_1      = [81, 131]  dist_from_palm=94.5
+  index_2      = [77, 142]  dist_from_palm=83.0
+  index_3      = [73, 153]  dist_from_palm=71.6
+  index_4      = [65, 175]  dist_from_palm=49.0
+  middle_1     = [76, 118]  dist_from_palm=103.9
+  middle_2     = [73, 131]  dist_from_palm=90.8
+  middle_3     = [67, 143]  dist_from_palm=77.4
+  middle_4     = [61, 162]  dist_from_palm=57.7
+  ring_1       = [67, 111]  dist_from_palm=107.2
+  ring_2       = [63, 125]  dist_from_palm=92.7
+  ring_3       = [59, 139]  dist_from_palm=78.1
+  ring_4       = [55, 160]  dist_from_palm=57.0
+  baby_1       = [51, 114]  dist_from_palm=100.4
+  baby_2       = [51, 130]  dist_from_palm=84.7
+  baby_3       = [50, 142]  dist_from_palm=72.8
+  baby_4       = [47, 163]  dist_from_palm=51.7
+  FINGER ANALYSIS:
+    thumb   : tip_d=17.1 mid_d=44.7 base_d=60.2  tip>mid=False  tip>base=False
+    index   : tip_d=49.0 mid_d=83.0 base_d=94.5  tip>mid=False  tip>base=False
+    middle  : tip_d=57.7 mid_d=90.8 base_d=103.9  tip>mid=False  tip>base=False
+    ring    : tip_d=57.0 mid_d=92.7 base_d=107.2  tip>mid=False  tip>base=False
+    baby    : tip_d=51.7 mid_d=84.7 base_d=100.4  tip>mid=False  tip>base=False
+
+=== Frame 190 valid=21 ===
+  palm         = [32, 187]  dist_from_palm=0.0
+  thumb_1      = [46, 158]  dist_from_palm=32.2
+  thumb_2      = [51, 164]  dist_from_palm=29.8
+  thumb_3      = [52, 175]  dist_from_palm=23.3
+  thumb_4      = [41, 182]  dist_from_palm=10.3
+  index_1      = [66, 159]  dist_from_palm=44.0
+  index_2      = [62, 153]  dist_from_palm=45.3
+  index_3      = [58, 153]  dist_from_palm=42.8
+  index_4      = [53, 158]  dist_from_palm=35.8
+  middle_1     = [66, 137]  dist_from_palm=60.5
+  middle_2     = [59, 139]  dist_from_palm=55.1
+  middle_3     = [54, 143]  dist_from_palm=49.2
+  middle_4     = [49, 153]  dist_from_palm=38.0
+  ring_1       = [58, 133]  dist_from_palm=59.9
+  ring_2       = [50, 134]  dist_from_palm=56.0
+  ring_3       = [45, 140]  dist_from_palm=48.8
+  ring_4       = [42, 151]  dist_from_palm=37.4
+  baby_1       = [47, 145]  dist_from_palm=44.6
+  baby_2       = [43, 145]  dist_from_palm=43.4
+  baby_3       = [39, 147]  dist_from_palm=40.6
+  baby_4       = [36, 154]  dist_from_palm=33.2
+  FINGER ANALYSIS:
+    thumb   : tip_d=10.3 mid_d=29.8 base_d=32.2  tip>mid=False  tip>base=False
+    index   : tip_d=35.8 mid_d=45.3 base_d=44.0  tip>mid=False  tip>base=False
+    middle  : tip_d=38.0 mid_d=55.1 base_d=60.5  tip>mid=False  tip>base=False
+    ring    : tip_d=37.4 mid_d=56.0 base_d=59.9  tip>mid=False  tip>base=False
+    baby    : tip_d=33.2 mid_d=43.4 base_d=44.6  tip>mid=False  tip>base=False
+
+=== Frame 195 valid=19 ===
+  palm         = [22, 195]  dist_from_palm=0.0
+  thumb_1      = [44, 170]  dist_from_palm=33.3
+  thumb_2      = [43, 178]  dist_from_palm=27.0
+  thumb_3      = [37, 189]  dist_from_palm=16.2
+  thumb_4      = [30, 193]  dist_from_palm=8.2
+  index_1      = [45, 177]  dist_from_palm=29.2
+  index_2      = [51, 168]  dist_from_palm=39.6
+  index_3      = [52, 162]  dist_from_palm=44.6
+  index_4      = [43, 170]  dist_from_palm=32.6
+  middle_1     = [41, 173]  dist_from_palm=29.1
+  middle_2     = [46, 165]  dist_from_palm=38.4
+  middle_3     = [48, 153]  dist_from_palm=49.4
+  middle_4     = [41, 161]  dist_from_palm=38.9
+  ring_1       = [0, 0]  dist_from_palm=-1.0
+  ring_2       = [41, 159]  dist_from_palm=40.7
+  ring_3       = [41, 151]  dist_from_palm=47.9
+  ring_4       = [37, 159]  dist_from_palm=39.0
+  baby_1       = [0, 0]  dist_from_palm=-1.0
+  baby_2       = [34, 151]  dist_from_palm=45.6
+  baby_3       = [34, 152]  dist_from_palm=44.6
+  baby_4       = [31, 161]  dist_from_palm=35.2
+  FINGER ANALYSIS:
+    thumb   : tip_d=8.2 mid_d=27.0 base_d=33.3  tip>mid=False  tip>base=False
+    index   : tip_d=32.6 mid_d=39.6 base_d=29.2  tip>mid=False  tip>base=True
+    middle  : tip_d=38.9 mid_d=38.4 base_d=29.1  tip>mid=True  tip>base=True
+    ring    : tip_d=39.0 mid_d=40.7 base_d=-1.0  tip>mid=False  tip>base=?
+    baby    : tip_d=35.2 mid_d=45.6 base_d=-1.0  tip>mid=False  tip>base=?

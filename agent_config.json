@@ -2,7 +2,7 @@
     "name": "jarvis_witness",
     "preset": "openai_gpt_4_1_mini,minimax_speech_2_6_turbo",
     "properties": {
-        "channel": "reachy_conversation",
+        "channel": "jarvis_eva_team42",
         "agent_rtc_uid": "1000",
         "remote_rtc_uids": ["12345"],
         "enable_string_uid": false,
@@ -17,13 +17,13 @@
                     "content": "{{config/system_prompt_agora.txt}}"
                 }
             ],
-            "greeting_message": "Good to see you. Jarvis online. What do you need?"
+            "greeting_message": "Hi! I'm EVA. What would you like to do?"
         },
         "tts": {
             "vendor": "minimax",
             "params": {
                 "voice_setting": {
-                    "voice_id": "English_Strong-WilledBoy"
+                    "voice_id": "English_CalmWoman"
                 },
                 "audio_setting": {
                     "sample_rate": 44100

@@ -31,6 +31,36 @@ _STATIC_DIR = _PROJECT_ROOT / "static" / "agora"
 _agent_manager: AgentManager | None = None
 _reachy: ReachyBridge = ReachyBridge()
 
+# Live state for dashboard
+_dashboard_state = {
+    "conversation_state": "idle",
+    "last_user_text": "",
+    "last_agent_text": "",
+    "current_emotion": "",
+    "audio_level": 0.0,
+    "reachy_connected": False,
+    "agent_running": False,
+    "events": [],  # last 20 events
+}
+_state_lock = threading.Lock()
+
+def _push_event(event_type: str, text: str):
+    """Add event to dashboard feed."""
+    import time
+    with _state_lock:
+        _dashboard_state["events"].append({
+            "type": event_type,
+            "text": text,
+            "ts": time.time(),
+        })
+        # Keep last 30 events
+        if len(_dashboard_state["events"]) > 30:
+            _dashboard_state["events"] = _dashboard_state["events"][-30:]
+
+def _update_state(**kwargs):
+    with _state_lock:
+        _dashboard_state.update(kwargs)
+
 
 class DatastreamPayload(BaseModel):
     text: str = ""
@@ -66,14 +96,23 @@ def _dispatch_action(data: dict[str, Any]) -> None:
         emotion = data.get("emotion_type") or data.get("emotion", "")
         if emotion:
             _reachy.play_emotion(str(emotion))
+            _update_state(current_emotion=str(emotion))
+            _push_event("emotion", str(emotion))
 
     elif action_type == "move_head":
         direction = data.get("direction", "")
         if direction:
             _reachy.move_head(str(direction))
+            _push_event("move", f"head {direction}")
+
+    elif action_type in ("dance",):
+        move = data.get("move", "dance1")
+        _reachy.play_emotion(str(move))
+        _push_event("dance", str(move))
 
     elif action_type == "wiggle":
         _reachy.wiggle_antennas()
+        _push_event("action", "wiggle antennas")
 
     else:
         logger.info("[action] Unknown action_type: %s", action_type)
@@ -138,8 +177,8 @@ def create_app() -> FastAPI:
     def motion_audio_chunk(payload: AudioChunkPayload) -> dict[str, Any]:
         """Receive TTS audio chunk from browser for head wobble."""
         if payload.level > 0.01:
-            logger.info("[audio] level=%.3f", payload.level)
             _reachy.feed_audio_chunk(payload.level)
+            _update_state(audio_level=payload.level)
         return {"ok": True}
 
     @app.post("/api/motion/session")
@@ -169,27 +208,40 @@ def create_app() -> FastAPI:
         # Conversation state (speaking/listening)
         if obj_type == "message.state":
             state = str(data.get("state", "")).lower()
-            logger.info("[datastream] State: %s", state)
+            _update_state(conversation_state=state)
+
+        # User transcription (live ASR)
+        elif obj_type == "user.transcription":
+            text_val = data.get("text", "")
+            is_final = data.get("final", False)
+            if is_final and text_val:
+                _update_state(last_user_text=text_val)
+                _push_event("user", text_val)
 
         # User speech transcription or tool action
         elif obj_type == "message.user":
             content = data.get("content", "")
-            logger.info("[datastream] User: %s", content)
             # Check if content is actually a JSON action from the LLM
             if isinstance(content, str) and "action_type" in content:
                 try:
                     action = json.loads(content)
                     if isinstance(action, dict) and action.get("action_type"):
-                        logger.info("[datastream] Action from user msg: %s", json.dumps(action)[:200])
                         _dispatch_action(action)
                 except (json.JSONDecodeError, ValueError):
                     pass
+            elif isinstance(content, str) and content.strip():
+                _update_state(last_user_text=content)
+                _push_event("user", content)
 
-        # Any other message — log fully and try to extract action
+        # Agent response text
+        elif obj_type == "message.assistant":
+            content = data.get("content", "")
+            if isinstance(content, str) and content.strip():
+                _update_state(last_agent_text=content)
+                _push_event("jarvis", content)
+
+        # Any other message — try to extract action
         else:
-            logger.info("[datastream] MSG obj=%s data=%s", obj_type, json.dumps(data)[:300])
-
-            # Try to extract action payload (may be nested in content)
             action = data
             content = data.get("content")
             if isinstance(content, str):
@@ -201,10 +253,18 @@ def create_app() -> FastAPI:
                 action = content
 
             if isinstance(action, dict) and action.get("action_type"):
-                logger.info("[datastream] Action: %s", json.dumps(action)[:200])
                 _dispatch_action(action)
 
         return {"ok": True}
+
+    @app.get("/api/dashboard/state")
+    def dashboard_state() -> dict[str, Any]:
+        """Live state for dashboard UI."""
+        with _state_lock:
+            state = dict(_dashboard_state)
+            state["reachy_connected"] = _reachy.connected
+            state["agent_running"] = _agent_manager.is_running() if _agent_manager else False
+            return state
 
     @app.get("/api/health")
     def health():

@@ -1,5 +1,5 @@
-const statusEl = document.getElementById("status");
-const logEl = document.getElementById("log");
+const statusEl = document.getElementById("conv-state") || document.createElement("span");
+const logEl = document.getElementById("log") || document.createElement("pre");
 
 let client = null;
 let localAudioTrack = null;
@@ -17,7 +17,7 @@ function log(msg) {
 }
 
 function setStatus(text) {
-  statusEl.textContent = text;
+  statusEl.innerHTML = `<span class="state-badge state-idle">${text}</span>`;
   log(text);
 }
 
@@ -241,6 +241,9 @@ window.addEventListener("load", async () => {
     await join();
   } catch (err) {
     setStatus(`Failed: ${err.message}`);
+    // Show error on dashboard too
+    const el = document.getElementById("agent-text");
+    if (el) el.textContent = `ERROR: ${err.message}`;
     console.error(err);
   }
 });

@@ -2,20 +2,192 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Jarvis - Agora Voice</title>
+  <title>EVA - Reachy Mini</title>
   <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.24.0.js"></script>
   <style>
-    body { font-family: monospace; background: #1a1a1a; color: #0f0; padding: 20px; }
-    h1 { color: #0ff; }
-    #status { font-size: 1.2em; margin: 10px 0; }
-    #log { background: #111; padding: 10px; max-height: 400px; overflow-y: auto;
-           white-space: pre-wrap; font-size: 0.85em; border: 1px solid #333; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Courier New', monospace; background: #0a0a0f; color: #e0e0e0; }
+
+    .header {
+      background: linear-gradient(135deg, #0f1923 0%, #1a1a2e 100%);
+      padding: 15px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid #1e90ff33;
+    }
+    .header h1 { color: #1e90ff; font-size: 1.4em; letter-spacing: 2px; }
+    .header .status-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      display: inline-block; margin-right: 8px;
+    }
+    .status-dot.green { background: #00ff88; box-shadow: 0 0 8px #00ff8866; }
+    .status-dot.yellow { background: #ffd700; box-shadow: 0 0 8px #ffd70066; }
+    .status-dot.red { background: #ff4444; box-shadow: 0 0 8px #ff444466; }
+    .status-dot.blue { background: #1e90ff; box-shadow: 0 0 8px #1e90ff66; animation: pulse 1s infinite; }
+
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 12px;
+      padding: 12px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #12121a;
+      border: 1px solid #1e90ff22;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .card h2 {
+      color: #1e90ff; font-size: 0.85em; text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 8px;
+      border-bottom: 1px solid #1e90ff22; padding-bottom: 4px;
+    }
+
+    .state-badge {
+      display: inline-block; padding: 4px 12px; border-radius: 12px;
+      font-size: 0.9em; font-weight: bold; text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .state-listening { background: #00ff8822; color: #00ff88; border: 1px solid #00ff8844; }
+    .state-thinking { background: #ffd70022; color: #ffd700; border: 1px solid #ffd70044; }
+    .state-speaking { background: #1e90ff22; color: #1e90ff; border: 1px solid #1e90ff44; }
+    .state-idle, .state-silent { background: #44444422; color: #888; border: 1px solid #44444444; }
+
+    .transcript { color: #ccc; font-size: 0.95em; min-height: 40px; }
+    .transcript .label { color: #888; font-size: 0.8em; }
+
+    .emotion-display {
+      font-size: 1.3em; color: #ff69b4; min-height: 30px;
+    }
+
+    .level-bar-container {
+      height: 6px; background: #222; border-radius: 3px; margin-top: 6px;
+    }
+    .level-bar {
+      height: 100%; background: linear-gradient(90deg, #1e90ff, #00ff88);
+      border-radius: 3px; transition: width 0.1s;
+    }
+
+    .events {
+      max-height: 250px; overflow-y: auto; font-size: 0.82em;
+    }
+    .events .event {
+      padding: 3px 0; border-bottom: 1px solid #ffffff08;
+    }
+    .events .event .time { color: #555; }
+    .events .event .tag { font-weight: bold; margin: 0 4px; }
+    .tag-user { color: #00ff88; }
+    .tag-jarvis { color: #1e90ff; }
+    .tag-emotion { color: #ff69b4; }
+    .tag-action { color: #ffd700; }
+    .tag-system { color: #888; }
+
+    .conn-info { display: flex; gap: 16px; font-size: 0.85em; color: #888; }
+    .conn-info span { display: flex; align-items: center; gap: 4px; }
+
+    #log { display: none; }
   </style>
 </head>
 <body>
-  <h1>Jarvis - The Witness</h1>
-  <p id="status">Initializing...</p>
+  <div class="header">
+    <h1>EVA</h1>
+    <div class="conn-info">
+      <span><span class="status-dot" id="dot-agora"></span>Agora</span>
+      <span><span class="status-dot" id="dot-reachy"></span>Reachy</span>
+      <span id="conv-state"></span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Heard (You)</h2>
+      <div class="transcript" id="user-text">...</div>
+    </div>
+
+    <div class="card">
+      <h2>Said (Jarvis)</h2>
+      <div class="transcript" id="agent-text">...</div>
+    </div>
+
+    <div class="card">
+      <h2>Feeling</h2>
+      <div class="emotion-display" id="emotion">idle</div>
+      <div class="level-bar-container">
+        <div class="level-bar" id="audio-bar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Activity</h2>
+      <div class="events" id="events"></div>
+    </div>
+  </div>
+
   <pre id="log"></pre>
   <script src="/static/agora/app.js"></script>
+  <script>
+    // Dashboard polling
+    let lastEventCount = 0;
+
+    async function pollDashboard() {
+      try {
+        const res = await fetch("/api/dashboard/state");
+        if (!res.ok) return;
+        const s = await res.json();
+
+        // State badge
+        const stateEl = document.getElementById("conv-state");
+        const cls = "state-" + (s.conversation_state || "idle");
+        stateEl.innerHTML = `<span class="state-badge ${cls}">${s.conversation_state || "idle"}</span>`;
+
+        // Connection dots
+        document.getElementById("dot-agora").className = "status-dot " + (s.agent_running ? "green" : "red");
+        document.getElementById("dot-reachy").className = "status-dot " + (s.reachy_connected ? "green" : "red");
+
+        // Transcripts
+        if (s.last_user_text) document.getElementById("user-text").textContent = s.last_user_text;
+        if (s.last_agent_text) document.getElementById("agent-text").textContent = s.last_agent_text;
+
+        // Emotion
+        if (s.current_emotion) {
+          document.getElementById("emotion").textContent = s.current_emotion;
+        }
+
+        // Audio level bar
+        const pct = Math.min(s.audio_level * 200, 100);
+        document.getElementById("audio-bar").style.width = pct + "%";
+
+        // Speaking animation on state dot
+        if (s.conversation_state === "speaking") {
+          document.getElementById("dot-agora").className = "status-dot blue";
+        }
+
+        // Events feed
+        const eventsEl = document.getElementById("events");
+        if (s.events && s.events.length !== lastEventCount) {
+          lastEventCount = s.events.length;
+          eventsEl.innerHTML = s.events.slice().reverse().map(e => {
+            const t = new Date(e.ts * 1000).toLocaleTimeString();
+            const tagClass = "tag-" + e.type;
+            return `<div class="event"><span class="time">${t}</span><span class="tag ${tagClass}">[${e.type}]</span>${escHtml(e.text)}</div>`;
+          }).join("");
+        }
+      } catch (_) {}
+    }
+
+    function escHtml(s) {
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    setInterval(pollDashboard, 500);
+    pollDashboard();
+  </script>
 </body>
 </html>
